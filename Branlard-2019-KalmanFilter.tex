@@ -1,0 +1,1042 @@
+% --------------------------------------------------------------------------------}
+% --- Preamble 
+% --------------------------------------------------------------------------------{
+\documentclass[wes, manuscript]{copernicus}
+% --- 
+% \usepackage{lineno}
+% \usepackage{lineno}
+% \pagewise
+% \linenumbers
+% \modulolinenumbers[1]
+% \usepackage{draftwatermark}
+% \SetWatermarkText{\ DRAFT}
+% \SetWatermarkScale{1.0}
+% \SetWatermarkColor[gray]{0.98}
+
+% --------------------------------------------------------------------------------}
+% --- USER COMMANDS 
+% --------------------------------------------------------------------------------{
+\usepackage{nth}
+\usepackage{relsize} % mathsmaller 
+\usepackage{color} 
+\usepackage{import}
+
+\usepackage{preamble-private}
+
+\newcommand*{\Appendixautorefname}{Appendix}
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+
+\newcommand\runinhead[1]{\par\vspace{0.3cm}\noindent\textbf{#1}\ }%
+
+
+\DeclareGraphicsExtensions{.pdf,.PDF,.png,.jpg,.PNG,.JPG,.eps,.EPS,.Eps}
+\graphicspath{{figs/}{figs_svg/}{figs_raw/}}
+
+
+\begin{document}
+
+% --------------------------------------------------------------------------------}
+% --- Front page
+% --------------------------------------------------------------------------------{
+\title{Augmented Kalman filter with a reduced mechanical model to estimate tower loads on a land-based wind turbine: a step towards digital-twin simulations}
+
+
+\Author[1]{Emmanuel}{Branlard}
+\Author[1]{Dylan}{Giardina}
+\Author[2]{Cameron S. D. }{Brown}
+\affil[1]{National Renewable Energy Laboratory, Golden, CO 80401, USA}
+\affil[2]{{\O}rsted, Nesa All{\'e} 1, 2820 Gentofte, Denmark}
+    \correspondence{E. Branlard (emmanuel.branlard@nrel.gov)}
+
+\runningtitle{Application of an augmented Kalman filter}
+\runningauthor{E. Branlard}
+
+\received{}
+\pubdiscuss{} %% only important for two-stage journals
+\revised{}
+\accepted{}
+\published{}
+
+%% These dates will be inserted by Copernicus Publications during the typesetting process.
+
+\firstpage{1}
+\maketitle
+
+
+% --------------------------------------------------------------------------------}
+% --- Abstract
+% --------------------------------------------------------------------------------{
+\begin{abstract}
+This article presents an application of the Kalman filtering technique to estimate loads on a wind turbine. The approach combines a mechanical model and a set of measurements to estimate signals that are not available in the measurements, such as wind speed, thrust, tower position, and tower loads. The model is severalfold faster than real time and is intended to be run online, for instance, to evaluate real-time fatigue life consumption of a field turbine using a digital twin, perform  condition monitoring,  or assess loads for dedicated control strategies. The mechanical model is built using a Rayleigh–Ritz approach and a set of joint coordinates. We present a general method and illustrate it using a 2-degrees-of-freedom model of a wind turbine and using rotor speed, generator torque, pitch, and tower-top acceleration as measurement signals. The different components of the model are tested individually. The overall method is evaluated by computing the errors in estimated tower bottom equivalent moment from a set of simulations. From this preliminary study, it appears that the tower bottom equivalent moment is obtained with about 10\% accuracy. The limitation of the model and the required steps forward are discussed.
+\end{abstract}
+
+
+% \copyrightstatement{TEXT}
+%\begin{description}
+%    \item[DOF]  {degrees of freedom }
+%     \item[$\v{w}_x$  ]{ System disturbance }
+%     \item[$\v{w}_y$  ]{ Measurement noise  }
+%\end{description}
+
+
+% --------------------------------------------------------------------------------}
+% --- Introduction 
+% --------------------------------------------------------------------------------{
+\introduction 
+Wind turbines are designed and optimized for a given site or class definition using both numerical tools and a statistical assessment of the environmental conditions the turbine will experience. The uncertainty on the tools and data are accounted for using multiplicative safety factors that are determined from a combination of experience and specifications by the standards. Overconservative safety factors will imply unnecessary costs that may be alleviated later on by extending the lifetime of a project. An underestimate of the safety factor will likely lead to catastrophic failures. 
+Once a design is complete and the product is in place, is it possible to predict what the lifetime of the wind turbine will be?
+%     This information is only available at the time of failure or end time of a project, and the proportion 
+%     This article intend to provide some tools to answers.
+
+Digital twins are becoming increasingly popular to follow the life cycle of a physical system.
+This concept is used to bridge the gap between the modeling and measurement realm:
+real-time measurements from the physical system are communicated to a digital system, and this information is combined with a numerical model to estimate the state of the system and potentially predict its evolution.
+A Kalman filter is one example of a technique that can be used: it combines a model of a system with a set of measurements on that system to predict additional variables, such as positions or loads at points where no measurements are available. 
+% Other approaches are for instance: inverse methods, or neural network methods.
+In this study, we focus on Kalman filter methods, but other load estimation techniques may be used, such as lookup tables~\citep{mendezreyes:2019}, modal expansion~\citep{iliopoulos:2016}, machine learning~\citep{evans:2018}, neural networks~\citep{schroder:2018}, polynomial chaos expansion~\citep{dimitrov:2018}, deconvolution~\citep{jacquelin:2003}, or load extrapolation \citep{ziegler:2017}.
+
+%\cite{ma:2004}
+
+Kalman filters have been extensively used in control engineering with a wide range of applications. 
+\cite{auger:2013} provide a review of some industrial applications. Load estimation using Kalman filtering are found, for example, in the following references: \cite{ma:2004} and \cite{azam:2015}.
+In the context of wind energy, wind speed estimation is critical for the determination of the dynamics of the system.
+This topic was investigated using parametric models by~\cite{gocmen:2014}; using Kalman filters by~\cite{ostergaard:2007},~\cite{knudsen:2011}, and \cite{song:2017}; and using Luenberger-type observer by \cite{hafidi:2012}.
+A comparison of wind speed estimation technique is found in \cite{soltani:2013}.
+The techniques were extended to also estimate the wind shear and turbine misalignments; see, for example, \cite{bottasso:2010}, \cite{Simley:2016}, and \cite{Bertele:2018}.
+Kalman filtering has been used to estimate rotor loads and wind speed in application to rotor controls by \cite{boukhezzar:2011}. 
+Kalman filtering was recently used by \cite{Belloli:2019} to estimate the sea state based on the knowledge of the offshore platform position.
+General approaches use Kalman filtering in combination with a model of the full wind turbine dynamics.  
+These approaches were used for wind speed estimation and load alleviation via individual pitch control (\citealt{selvam:2009}; \citealt{bottasso:2009}) and for online estimation of mechanical loads~\citep{bossanyi:2003}.
+An example of estimating tower loads with the acceleration sensor is found in \cite{Hau:2008}.
+\cite{bossanyi:2012} compared the observed rotor and tower loads with measurements and investigated the potential of the control method to reduce damage equivalent loads.
+
+
+
+The methodology presented in this article uses an augmented Kalman filter \citep{lourens:2012} to estimate loads on the wind turbine based on measurement signals commonly available in the nacelle. 
+The method builds on the approach used by \cite{bossanyi:2012} and \cite{lourens:2012}.
+The method of \cite{lourens:2012} is generalized. On the other hand, the expression of the mechanical system may be seen as simplified compared to the approach of \cite{bossanyi:2012}: a Rayleigh–Ritz formulation is used and the system is not further linearized. 
+The equations are given in full for a 2-degrees-of-freedom (DOF) system, and the source code is made available online.
+The time series of estimated loads are applied to assess the fatigue life consumption of the turbine components using the rainflow counting method. 
+The study focuses on the determination of tower loads of land-based wind turbines but other signals may be extracted from the estimated states, such as the tower top displacement, the aerodynamic loads, and the wind speed.
+A scheme of the method is provided in \autoref{fig:WorkflowLoadEstimation}.
+%
+% --------------------------------------------------------------------------------
+\begin{figure}[!htb]%
+ \centering%
+ \def\svgwidth{1.1\columnwidth}%
+ \scalebox{0.9}{\import{figs_svgtex/}{WorkflowLoadEstimation}}%
+ \caption{Main components of the model: wind turbine measurements and a turbine model are combined to estimate tower loads. A wind speed estimator and a Kalman filter algorithm are used in the estimation. Turbine model dependencies are framed in blue.}\label{fig:WorkflowLoadEstimation}%
+ \end{figure}%
+% --------------------------------------------------------------------------------
+% +
+The numerical model of the wind turbine relies on a Rayleigh-Ritz shape-function approach with reduced numbers of DOF \citep{branlard:2019flex}. 
+The wind speed is estimated using an approach similar to~\cite{ostergaard:2007}, and the thrust force estimation is based on this wind speed estimate. 
+The generator torque, rotor speed, and tower-top accelerations are used as measurements and combined with the numerical model within an augmented Kalman filter.
+%
+The time series of loads in the tower are determined based on the tower shape function and the tower degrees of freedom, and the fatigue loads are computed from this signal.
+%
+It is noted that the method is expected to be more accurate at the tower bottom than the tower top because rotor asymmetric loading cannot be captured from the single acceleration measurement. 
+This limitation can be overcome by including more measurement channels and states.
+Possible improvements of the method are mentioned in the discussion section of this article.
+
+% Improvements are nevertheless possible by including more measurement channels and states, in particular by adding the side-side tower-top acceleration measurement and displacement state. 
+
+
+\autoref{sec:Description} presents the different components required for this work: the augmented Kalman filter, the numerical model of the turbine, and the estimators for the wind speed, thrust, tower load, and fatigue.
+Simple illustrations and validation results for the different components of the model are provided in \autoref{sec:SimpleCases}. \autoref{sec:FullCases} presents full applications, but limited to simulations. Discussions and conclusions follow.
+
+
+
+% --------------------------------------------------------------------------------}
+% --- Model 
+% --------------------------------------------------------------------------------{
+\section{Description of the models}
+\label{sec:Description}
+
+\subsection{Example for a 2 DOF wind turbine model}
+\label{sec:TwoDof}
+We start this section with an illustrative example before describing the different parts of the model in their general form. A wind turbine is modeled here using 2 DOF: (1) the generalized coordinate associated with the fore-aft bending  of the tower, $q_{t}$, and (2) the shaft rotation, $\psi$. The tower bending is associated with a shape function, $\Phi_{t}(z)$, such that the fore-aft displacement of a point at height $z$ and at time $t$ is given by $u(z,t)=q_{t}(t) \Phi_{t}(z)$. The shape function is normalized to unity at the tower top, and $q_t$ is then equal to fore-aft displacement at the tower top (see \autoref{fig:ShapeFunctionCoordSystemOnshore}).
+The equations of motion of the system are:
+\begin{align}
+  \begin{bmatrix} 
+  M & 0\\
+  0  & J\\
+  \end{bmatrix} 
+  \begin{bmatrix} 
+  \ddot{q}_t\\
+  \ddot{\psi}\\
+  \end{bmatrix} 
+  +
+  \begin{bmatrix} 
+  C& 0\\
+  0& 0\\
+  \end{bmatrix} 
+  \begin{bmatrix} 
+  \dot{q}_t\\
+  \dot{\psi}\\
+  \end{bmatrix} 
+  +
+  \begin{bmatrix} 
+  K& 0\\
+  0& 0\\
+  \end{bmatrix} 
+  \begin{bmatrix} 
+  q_t\\
+  \psi\\
+  \end{bmatrix} 
+  =
+  \begin{bmatrix} 
+   T_a^*\\
+  Q_a-Q_g\\
+  \end{bmatrix} 
+  \label{eq:Mech2DOF}
+\end{align}
+where $M$, $C$, and $K$ are the generalized mass, damping, and stiffness, respectively, associated with the fore-aft DOF; $J$ is the drivetrain inertia; $T_a^*$ and $Q_a$ are the aerodynamic thrust and torque, respectively; and $Q_g$ is the generator torque. 
+A superscript asterisk is used on the thrust to indicate that using the thrust directly is a rough approximation. A more elaborate expression of the generalized force acting on $q_t$ is given in \autoref{sec:MechSys2DOF}.
+The determination of $M$, $C$, and $K$ is discussed in \cite{branlard:2019flex}. 
+For the National Renewable Energy Laboratory (NREL) 5 MW turbine, the values are: $M=4.4e^5$ \unit{kg}, $D=2.5e^4$ \unit{kg~s^{-1}}, $K=2.7e^6$ \unit{kg~s^{-2}}, and $J=4.3e^7$ \unit{kg~m^2}.
+We tuned the damping term $C$ to account for aerodynamic damping, as mentioned in \autoref{sec:MechSys2DOF}. Aerodynamic stiffness is included in $T_a^*$.
+% $M=\int_0^{L_t} \Phi_{t}^2(z) dm$ 
+% and \autoref{sec:MechModel}. 
+In this example, the system of equations is coupled only via the aerodynamic loads.
+
+The following measurements are usually readily available on any commercial wind turbine: 
+the generator power, $P_g$; 
+the blade pitch angle, $\theta_p$;
+the rotor rotational speed, $\Omega\eqdef\dot{\psi}$;
+and the tower-top acceleration in the fore-aft direction, $\ddot{q}_t$.
+The knowledge of the generator power, speed, and losses allows for the estimation of the generator torque, $Q_g$. In this study, the generator torque is assumed to be known.
+We will use an augmented Kalman filter concept to combine these measurements with the mechanical model to estimate the state of the system.
+The Kalman filter algorithm requires linear state and output equations.
+The state vector is assumed to be $\x=[q_t, \psi, \dot{q}_t, \dot{\psi}, Q_a]$.
+% Different modelling choices are possible, leading to different representations.
+The fact that some of the loads were included into the state vector is referred to as ``state augmentation.'' 
+The choice of loads to include in the state vector is not unique and will lead to different state equations. 
+% Also, the state equation may not always be linear, which 
+% 
+% k, and 
+% 
+Using this choice for $\x$, we write \autoref{eq:Mech2DOF} into the following state equation:
+\begin{align}
+\begin{bmatrix}
+    \dot{q}_t   \\
+    \dot{\psi}  \\
+    \ddot{q}_t  \\
+    \ddot{\psi} \\
+    \dot{Q}_a   \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+0        & 0 & 1        & 0 & 0      \\
+0        & 0 & 0        & 1 & 0      \\
+-M^{-1}K & 0 & -M^{-1}C & 0 & 0      \\
+0        & 0 & 0        & 0 & J^{-1} \\
+0        & 0 & 0        & 0 &  0     \\
+\end{bmatrix}
+\begin{bmatrix}
+    q_t        \\
+    \psi       \\
+    \dot{q}_t  \\
+    \dot{\psi} \\
+    Q_a        \\
+\end{bmatrix}
++
+\begin{bmatrix}
+    0      & 0       & 0 \\
+    0      & 0       & 0 \\
+    M^{-1} & 0       & 0 \\
+    0      & -J^{-1} & 0 \\
+    0      & 0       & 0 \\
+\end{bmatrix}
+\begin{bmatrix}
+ T_a^*(\dot{\psi},Q_a,\theta_p)\\
+ Q_g   \\
+\theta_p\\
+\end{bmatrix}
+   \label{eq:StateEq2DOF}
+\end{align}
+%  T_a^*(\dot{\psi},Q_a,\theta_p)
+where, for simplicity, the time derivatives of the aerodynamic torque is assumed to be zero, an assumption referred to as ``random walk force model.'' This assumption accounts for saying that the estimate of the torque at the next time step is likely to be close to the one at the current time step. Improvements on this will be discussed in \autoref{sec:discussions}.
+The thrust is determined based on the rotor speed, aerodynamic torque, and pitch angle using tabulated data, as described in \autoref{sec:WSEst}.
+The output equation relates the measurements to the states and inputs as follows:
+\begin{align}
+\begin{bmatrix}
+    \ddot{q}_t\\
+    \dot{\psi} \\
+    Q_g        \\
+    \theta_p  \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+-M^{-1}K & 0 &-M^{-1}C & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+\end{bmatrix}
+\x
+% \begin{bmatrix}
+%     q_t        \\
+%     \psi       \\
+%     \dot{q}_t  \\
+%     \dot{\psi} \\
+%     Q_a        \\
+%     Q_g        \\
+% \end{bmatrix}
+%       %\label{eq:}
++
+\begin{bmatrix}
+ M^{-1} & 0 & 0  \\
+     0  & 0 & 0  \\
+     0  & 1 & 0  \\
+     0  & 0 & 1  \\
+\end{bmatrix}
+\begin{bmatrix}
+ T_a^*\\
+  Q_g        \\
+\theta_p\\
+\end{bmatrix}
+   \label{eq:OutputEq2DOF}
+\end{align}
+\autoref{eq:StateEq2DOF} and \autoref{eq:OutputEq2DOF} are used within a Kalman filter algorithm to estimate the state's vector based on the measurements.
+The estimated time series of $q_t$, together with its associated shape function $\Phi_t$, are used to determine the bending moments within the tower and estimate tower fatigue loads, based on the method presented in \autoref{sec:Fatigue}.
+Results from this simple model will be provided in \autoref{sec:SimpleCases}.
+The rest of this section generalizes the approach presented.
+
+
+\subsection{Mechanical model of the wind turbine}
+\label{sec:MechModel}
+The wind turbine is described using a set of DOF that consist of joint coordinates and shape function coordinates. The method was described in previous work~\citep{branlard:2019flex}, and the source code made available online via a library called YAMS~\citep{branlard:YAMS}. Similar approaches are used in the elastic codes Flex and OpenFAST~\citep{openfast}. The advantage of the method is that the system can be described with few DOF. The number of DOF is between $2$ and $30$, whereas traditional finite element methods require in the order of 1000 DOF.
+
+The only joint coordinate retained in the current model is the shaft azimuthal position, noted $\psi$. 
+The shaft torsion and nacelle yaw and tilt joints can be added without difficulty.
+The tower and blades are represented using a set of shape functions taken as the first mode shapes of these components.
+The shape functions of the tower are assumed to be the same in the fore-aft and side-side directions, which are respectively aligned with the $x$ and $y$ directions (see \autoref{fig:ShapeFunctionCoordSystemOnshore}).
+The number of shape functions are noted $n_\text{xt}$, $n_\text{yt}$, and $n_\text{b}$ for the tower fore-aft, tower side-side, and blade, respectively. Using $B$ as the number of blades and $n_\text{s}$ as the number of DOF representing the shaft, the total number of DOF is: $n_q = n_\text{s} + B n_\text{b} + n_\text{xt}+n_\text{yt}$. The tower DOF are written as $q_{xt,i}$, with $i\in[1..n_\text{xt}]$ and $q_{yt,i}$ with $i\in[1..n_\text{yt}]$. Similar notations are used for the blade DOF.
+%
+% --------------------------------------------------------------------------------
+\begin{figure}[!htb]%
+ \centering%
+ \def\svgwidth{0.7\columnwidth}%
+ \scalebox{0.9}{\import{figs_svgtex/}{ShapeFunctionCoordSystemOnshore}}%
+ \caption{(a) Notations for the wind turbine model and (b) example of shape functions used for the tower. Definition of points: $\mathrm{T}$: tower bottom; $\mathrm{N}$: tower top; $\mathrm{G}$: center of mass of the rotor nacelle assembly; $\mathrm{R}$: rotor center. The shape functions are normalized to unity at point $N$. The slope at the extremity of the first shape function is written $\nu_1\stackrel{\mathsmaller{\mathsmaller{\mathsmaller{\triangle}}}}{=}\frac{\mathrm{d}\Phi_{t,1}}{\mathrm{d} z}(L_t)$. }\label{fig:ShapeFunctionCoordSystemOnshore}%
+ \end{figure}%
+% --------------------------------------------------------------------------------
+%
+
+The equation of motions are established using Lagrange's equation. 
+The example presented in \autoref{sec:TwoDof} corresponds to
+ $n_\text{s}=1$, $n_\text{b}=0$, $n_\text{t,SS}=0$, and $n_\text{t,FA}=1$.
+% 
+An example for a 5 DOF system with $n_\text{s}=1$, $B=2$, $n_\text{b}=1$,
+$n_\text{t,SS}=0$, and $n_\text{t,FA}=1$ is given in \cite{branlard:2019flex}.
+In the general case, the equations of motion are described as:
+\begin{align}
+\m{M} \qddot
++\m{C} \qdot
++\m{K} \q
+=\v{f}
+\qquad\rightarrow\qquad
+%  \qddot =
+% -\m{M}^{-1}\m{C} \qdot
+% -\m{M}^{-1}\m{K} \q
+% +\m{M}^{-1}\v{f}
+% \begin{align}
+    \begin{bmatrix}
+    \qdot\\
+    \qddot\\
+    \end{bmatrix} =
+    \begin{bmatrix}
+      \m{0}             &  \m{I}\\
+       -\m{M}^{-1}\m{K} &  -\m{M}^{-1}\m{C}\\
+    \end{bmatrix}
+    \begin{bmatrix}
+    \q \\
+    \qdot\\
+    \end{bmatrix} 
+    +
+    \begin{bmatrix}
+        \m{0} \\
+        \M^{-1} \v{f}\\
+    \end{bmatrix}
+        \label{eq:MechanicalSystem}
+% \end{align}
+% 
+\end{align}
+where $\m{M}$, $\m{C}$, and $\m{K}$ are the mass, damping, and stiffness matrices, respectively; 
+$\v{q}$ is the vector of DOF; and $\v{f}$ is the vector of generalized loads acting on the DOF.
+An inconvenience of the method is that the mass matrix is a nonlinear function of the DOF.
+The main assumption of this work is that the nonlinearities can be discarded as a first approximation. This assumption is further discussed in \autoref{sec:discussions}.
+
+% \weird{TODO, write a linearization of M to see if we can introduce a M0}
+% \weird{TODO, give example of shape functions}
+
+
+
+
+
+
+
+
+
+% --------------------------------------------------------------------------------}
+% --- AUGMENTED KALMAN 
+% --------------------------------------------------------------------------------{
+\subsection{Augmented Kalman filter applied to a mechanical system}
+\label{sec:AugmentedKalmanFilter}
+Descriptions of the standard Kalman filter can be found in \cite{Grewal:book} or \cite{zarchan:book}. The algorithm will not be detailed in this article.
+The method expects state and output equations of the following form:
+\begin{align}
+\xdot &= \X_x\x + \X_u \u + \v{w}_x     && \text{(state equation)}
+    \label{eq:LinearStateSpaceWithNoise}
+\\
+    \v{y} &= \Y_x\x + \Y_u \u + \v{w}_y  && \text{(output/measurement equation)}
+\label{eq:MeasurementWithNoise}
+\end{align}
+where 
+$\x$, $\u$, and $\v{y}$ are the state, input, and measurement vectors, respectively;
+$\X_x$, $\X_u$, $\Y_x$, and $\Y_u$ are Jacobian matrices describing the expected relationships between measurements, states, and inputs;
+and $\m{w}_x$ and $\m{w}_y$ are Gaussian uncorrelated noises associated with the state-space model and measurements, respectively, of which the associated covariance matrices are noted $\m{Q}=E[\m{w}_x \m{w}_x^t]$ and $\m{R}=E[\m{w}_y\m{w}_y^t]$, with $E[\m{w}_x\m{w}_y^t]=0$, $E$ the expected value operator, and the subscript $t$ represents a transpose.
+We will develop these equations in the case of a mechanical system that follows the general form of \autoref{eq:MechanicalSystem}. Specific applications will be given in \autoref{sec:SimpleCases} and \autoref{sec:FullCases}.
+
+Different approaches can be used to write \autoref{eq:MechanicalSystem} in the form of 
+\autoref{eq:LinearStateSpaceWithNoise}, depending how the force vector is to be treated.
+% , and what can be potentially measured or controlled.
+%
+In a first approach, the forces can be considered to be inputs $\v{f}=\v{u}$, in which case 
+\autoref{eq:MechanicalSystem} is directly in the form of \autoref{eq:LinearStateSpaceWithNoise}, with $
+\x=[\q , \qdot]$. This implies that we have full knowledge of the forces acting on the system at every time step, which is unlikely.
+%
+In a second approach, the forces can be assumed to be part of the system noise, $\v{w}_x$, which would lead to $\v{x}=[\q , \qdot]$ and $\m{B}=0$. This is obviously a crude approximation because the forces acting on the system are nonstochastic, and we likely have some knowledge of them.
+%
+In the intermediate approach introduced by~\cite{lourens:2012}, some of the forces are included in the system noise, and others as part of the states.
+We write the reduced set of loads that are part of the state $\v{p}$, of length $n_p$, and the full force vector is assumed to be approximated by: $\v{f}\approx \v{S}_p \v{p}$, where $\m{S}_p$ is a matrix of dimension $n_q\times n_p$.
+The reduced set of forces, $\p$, is integrated into the state vector as:
+$\v{x}=[\q, \qdot, \p]$. This process is referred to as ``state augmentation.'' 
+% We generalize this approach.
+% The state equations can be found in the article of \cite{lourens:2012}. 
+% This equation can be interpreted in two ways. In one interpretation, the forces $\p$ represent the main forces acting on the system or concentrated forces, and the forces in all the degrees of freedom are mostly driven by these input forces. Another interpretation is that we only know some of the input forces and we leave the other ones as noise. The justification of \autoref{eq:SpDefinition} can also result from a combination of the two interpretations. 
+
+We introduce a generalized approach and assume that the forces are a combination of states, inputs, and unknown noise:
+\begin{align}
+   \v{f} \approx
+        \F_q \q 
+       +\F_{\dot{q}} \qdot
+       +\F_p \p 
+       +\F_u \u
+       +\v{w}_f
+    \approx
+       +\F_q \q 
+       +\F_{\dot{q}} \qdot
+       +\F_p \p 
+       +\F_u \u
+       \label{eq:SpDefinition}
+\end{align}
+where the $\F_\bullet$ matrix represent the Jacobian of the force vector with respect to vector $\bullet$, and $\v{w}_f$ are unknown forces that are assumed to be part of system disturbance, $\v{w}_x$.
+%     
+The terms $\F_q$ and $\F_{\dot{q}}$ are linearized stiffness and damping terms. These terms are zero if their contributions are already included in the definitions of $\m{K}$ and $\m{C}$.
+% 
+In practice, the linearization of the force vector may not be possible, and assumed relationships
+or engineering models are used. As an example, if $\p$ contains the thrust force and $\v{f}$ the moment at the tower base, the appropriate element of $\F_p$ could be set with the lever arm between the tower top and tower base.
+
+This approach allows us to use the knowledge we have of some of the main loads acting on the system and express their dynamics into the state-space equation. The forces may, for instance, be assumed to follow a first-order system as follows:
+    \begin{align}
+       \pdot = \P_q \q + \P_{\dot{q}} \qdot  + \P_p \p + \P_u \u 
+           \label{eq:FirstOrderP}
+    \end{align}
+where the $\P_\bullet$ matrices are obtained from a knowledge of the force evolution.
+A second-order system could also be introduced, in which case the state needs to be augmented with both $\p$ and $\pdot$ (``random walk'' force model). For simplicity, the applications used in this work will assume $\pdot=\v{0}$, but future work will investigate the benefit of using first-order systems for the evolution of the forces.
+
+Inserting 
+\autoref{eq:SpDefinition}
+into
+\autoref{eq:MechanicalSystem}, introducing $\x=[\q, \qdot, \p]$, and using  
+\autoref{eq:FirstOrderP}, we obtain a state equation
+of the form of \autoref{eq:LinearStateSpaceWithNoise} is obtained:
+\begin{align}
+\X_x=
+    \begin{bmatrix}
+      \m{0}      & \m{I}      & \m{0}       \\
+      -\M^{-1}(\K-\F_q) & -\M^{-1}(\C-\F_{\dot{q}}) & \M^{-1}\F_p \\
+%       -\M^{-1}\K & -\M^{-1}\C & \M^{-1}\F_p \\
+      \P_{\dot{q}}      & \P_q      & \P_p  \\
+    \end{bmatrix}
+        ,\qquad
+\X_u=
+    \begin{bmatrix}
+      \m{0}      \\
+      \M^{-1}\F_u \\
+             \P_u \\
+    \end{bmatrix}
+\label{eq:StateSpaceMechanicalX}
+\end{align}
+% ---
+The measurements are assumed to be a combination of the acceleration, velocity, displacements, loads, and inputs:
+\begin{align}
+   \v{y} \approx
+       \tilde{\Y}_{\ddot{q}} \qddot + \tilde{\Y}_{\dot{q}} \qdot + \tilde{\Y}_q \q \ +\tilde{\Y}_p \v{p} \ +\tilde{\Y}_u \v{u}
+       \label{eq:MechanicalMeasurement}
+\end{align}
+The matrix $\tilde{\Y}_{\ddot{q}}$ is here introduced for convenience when a simple relationship exists between outputs and DOF accelerations, but this term can be omitted altogether and should not be double-counted.
+% because part of this matrix will already be present in the $\Y_\bullet$ matrices. 
+% 
+Indeed, the acceleration, $\qddot$, can be isolated from \autoref{eq:MechanicalSystem}, and then expressed as a function of $\qdot$, $\v{p}$, and $\v{u}$. 
+If an automated linearization procedure is used, then the acceleration term should be skipped because it would otherwise be redundant. The output relationship would then be:
+\begin{align}
+   \v{y} \approx \Y_{\dot{q}} \qdot + \Y_q \q \ +\Y_p \v{p} \ +\Y_u \v{u}
+\end{align}
+The link between the two formulations is provided using \autoref{eq:MechanicalSystem}, giving:
+\begin{align}
+         \Y_q= \tilde{\Y}_q - \tilde{\Y}_{\ddot{q}}\M^{-1}\K
+,\qquad
+\Y_{\dot{q}} = \tilde{\Y}_{\dot{q}} - \tilde{\Y}_{\ddot{q}}\M^{-1}\C 
+,\qquad
+\Y_p         = \tilde{\Y}_p + \tilde{\Y}_{\ddot{q}}\M^{-1}\F_p 
+,\qquad
+\Y_u         = \tilde{\Y}_{u} + \tilde{\Y}_{\ddot{q}}\M^{-1} \F_u
+\end{align}
+An output equation of the form of \autoref{eq:MeasurementWithNoise} is directly obtained as:
+\begin{align}
+\Y_x=
+    \begin{bmatrix}
+        \Y_q ,& \Y_{\dot{q}}, & 
+            \Y_p 
+    \end{bmatrix}
+        ,\qquad
+\Y_u=\Y_{u}
+\label{eq:StateSpaceMechanicalY}
+\end{align}
+\autoref{eq:StateSpaceMechanicalX}
+and 
+\autoref{eq:StateSpaceMechanicalY}
+form the bridge between the definition of the mechanical model and the state and output equations needed by the Kalman filter algorithm.
+
+
+% The equation above Kalman filter uses maticeh
+\autoref{eq:LinearStateSpaceWithNoise} and \autoref{eq:MeasurementWithNoise} are in continuous form, whereas the Kalman filter algorithm uses discrete forms. The discrete forms of the matrices perform the time integration of the states from one time step to the next, namely: 
+      $\x_{k+1} = \X_{x,d} \x_k + \X_{u,d} \u_k$, where the subscript $d$ indicates the discrete form of the matrices and $k$ is the time-step index.
+The matrix $\X_{x,d}$ is referred to as the ``fundamental matrix.'' For time-invariant systems, this matrix may be obtained using Laplace transform or by Taylor-series expansion~\citep{zarchan:book}.
+For a given time step, $\Delta t$, the discrete matrices corresponding to $\X_x$  and $\X_u$ are:
+\begin{align}
+   \m{X}_{x,d} &= e^{\m{X}_x \Delta t} = I + \m{X}_x \Delta t +  \frac{(\m{X}_x \Delta t)^2}{2!} + \ldots\approx   I + \m{X}_x \Delta t
+    \label{eq:DiscreteForm}
+       \\
+%        ,\qquad
+    \m{X}_{u,d} &= \int_0^{dt} \X_{x,d}(\tau) \m{X}_u \, \d\tau
+    \approx \left[ \X_{x,d}-\m{I}\right]\X_{x}^{-1} \X_u
+    \approx  \X_u \Delta t
+    \nonumber
+\end{align}
+The approximation in \autoref{eq:DiscreteForm} is effectively a first-order forward Euler time integration.
+The matrices $\Y_x$ and $\Y_u$ remain unchanged by the discretization because the output equation is an algebraic equation involving quantities at the same time step.
+
+Many choices are possible as to how the model may be formulated, inlcuding which forces should be accounted for in the reduced set, $\p$, which forces should be assumed to be obtained from the inputs, which models to use for the $\P$ matrices, and so on.
+This study is limited to land-based wind turbines, and therefore the main loads are the aerodynamic thrust and torque. 
+A subtlety to account for is that some of the forces of the model presented in \autoref{eq:MechanicalSystem} are generalized forces, and are projections of loads onto the shape functions~\citep{branlard:2019flex}. An example will be given in \autoref{sec:MechSys2DOF}.
+
+
+When possible, the Jacobian matrices introduced should be determined by linearization about an operating point. The mass matrix should also be linearized about such a point.
+In the current work, the nonlinearities are either neglected or directly inserted into the expression presented without performing a linearization.
+This crude simplification will be discussed in \autoref{sec:discussions}, in light of the results presented in \autoref{sec:SimpleCases} and \autoref{sec:FullCases}.
+
+    
+
+
+
+
+
+\subsection{Wind speed and thrust estimation}
+\label{sec:WSEst}
+In this section, $Q_a$, $\theta_p$, and $\Omega$ are assumed to be given.
+The aerodynamic power and thrust coefficients, $C_P$ and $C_T$, are also assumed to be known as a function of the pitch angle and tip-speed ratio, $\lambda=\Omega R/U_0$, where $R$ is the rotor radius and $U_0$ is the wind speed.
+The functions $C_P(\lambda, \theta_p)$ and $C_T(\lambda, \theta_p)$ are estimated by running a parametric set of simulations at constant operating conditions. There is some uncertainty here as to whether the real turbine performs as predicted by these functions. This question will be considered in \autoref{sec:discussions}.
+The aerodynamic torque is computed from the tabulated data as:
+\begin{align}
+    Q_{a,\text{tab}}\left(U_0,\Omega,\theta_p\right) &= \frac{1}{2} \rho \pi R^2 \frac{U_0^3}{\Omega}\, C_P\left(\frac{\Omega R}{U_0}, \theta_p\right)
+ \label{eq:QaTab}
+\end{align}
+where $\rho$ is the air density, which is another potential source of uncertainty to be considered when dealing with measurements.
+The wind speed is obtained by solving the following nonlinear constraint equation for $u_\text{est}$:
+\begin{align}
+\qquad \text{Find } u_\text{est},~\text{such that }
+ Q_a - Q_{a,\text{tab}}\left(u_\text{est},\Omega,\theta_p\right) =0
+     \label{eq:TorqueMinimization}
+\end{align}
+The wind speed determined by this method is assumed to be the effective wind speed acting over the rotor area. A correction for nacelle displacements is discussed in \autoref{sec:discussions}.
+The aerodynamic thrust is estimated from this wind speed as:
+\begin{align}
+T_{a,\text{est}} = 
+   T_{a,\text{tab}} \left(u_\text{est},\Omega,\theta_p\right)
+,\qquad \text{with} \quad
+   T_{a,\text{tab}}\left(U_0,\Omega,\theta_p\right)
+ = \frac{1}{2} \rho \pi R^2 U_0^2\, C_T\left( \frac{\Omega R}{U_0}, \theta_p \right)
+ \label{eq:TaTab}
+\end{align}
+
+
+
+
+\subsection{Tower loads and fatigue estimation}
+\label{sec:Fatigue}
+The deflection of the tower, $U$, in the $x$ or $y$ directions at a given height, $z$, and a given time, $t$, is given by the sum of the tower shape functions scaled by the tower degrees of freedom:
+\begin{align}
+   U_x(z,t) = \sum_i q_{xt,i}(t)  \Phi_{t,i}(z)
+   ,
+\qquad
+   U_y(z,t) = \sum_i q_{yt,i}(t)  \Phi_{t,i}(z)
+\end{align}
+The curvature, $\kappa$, is obtained by differentiating the deflection twice, giving:
+\begin{align}
+   \kappa_x(z,t) = \sum_i q_{xt,i}(t)  \frac{\d^2\Phi_{t,i}}{\d^2z}(z)
+   ,
+\qquad
+   \kappa_y(z,t) = \sum_i q_{yt,i}(t)  \frac{\d^2\Phi_{t,i}}{\d^2z}(z)
+\end{align}
+The bending moments along the tower height are then obtained from the curvatures using Euler beam theory:
+\begin{align}
+M_y(z,t)= EI(z) \kappa_x(z,t) 
+   ,
+\qquad
+M_x(z,t)= EI(z) \kappa_y(z,t) 
+\end{align}
+where $EI$ is the bending stiffness of a given tower cross section.
+The time series of bending moment are processed using a rainflow counting algorithm to estimate the equivalent loads and damage~\citep{IEC61400-3}.
+
+
+
+
+
+
+% --------------------------------------------------------------------------------}
+% --- Simple appplications
+% --------------------------------------------------------------------------------{
+\section{Simple applications and validations}
+\label{sec:SimpleCases}
+
+
+\subsection{Wind speed estimation}
+\label{sec:WSEstimEx}
+In this section, we illustrate and evaluate the wind speed estimation methodology presented in \autoref{sec:WSEst}.
+We computed tabulated $C_P$ and $C_T$ for the NREL 5 MW turbine~\citep{nrel5mw} using the multi-physics simulation tool OpenFAST~\citep{openfast}.
+We devised a turbulent simulation to sweep through the main operating regions of the wind turbine within a 10 \unit{min} period, namely: the startup region (Region 0), the optimal $C_p$ tracking region (Region 1), rotor-speed regulation (Region 2), and power regulation (Region 3). 
+Region 2 has a small span for the NREL 5 MW turbine, so it is gathered with Region 3. 
+We simulated the turbine with all the DOFs turned on and extracted the following variables from the simulation at 50 \unit{Hz}: $\bar{u}_\text{ref}$, the average wind speed at the rotor plane; $Q_{a,\text{ref}}$, the aerodynamic torque; $T_{a,\text{ref}}$, the aerodynamic thrust; $\Omega_\text{ref}$, the rotational speed; and $\theta_{p,\text{ref}}$, the pitch angle.
+The wind speed, $u_\text{est}$, was estimated using the method presented in \autoref{sec:WSEst}.
+The results are presented in \autoref{fig:WSEstimatorTS} and detailed as follows.
+% 
+% ---------------------------------- FIGURES -------------------------------------
+% From script: Main_101_WSEstimation_Plot.py, folder: C:\Work\EstimatorKalman\code, 2019/11/12
+\noindent\begin{figure}[!htb]\centering%%
+%   \hfill
+  \includegraphics[width=0.98\textwidth]{WSEstimatorTS}%
+%   \hfill\includegraphics[width=0.49\textwidth]{WSEstimatorFFT}\hfill
+%   \hfill\includegraphics[width=0.48\textwidth]{WSEstimatorRelErrTorqueWS}\hfill\  
+  \caption{Estimated wind speed compared to rotor-averaged wind speed for a reference simulation. 
+}\label{fig:WSEstimatorTS}
+    %   Absolute error colored by operating regions.%
+      %Two extracted windows are shown.
+%      (Right:) Relative error in estimated torque and wind speed colored by operating regions. The probability density function (PDF) is given for each axis.
+\end{figure}
+% --------------------------------------------------------------------------------
+% 
+    
+The absolute error in wind speed is observed to be mostly within $\pm 0.5$ \unit{m~s^{-1}}.
+The error is greatest in Region $0$, where the generator torque is not yet applied. A separate wind-speed method should be devised for this case. The mean relative error for the entire time series is $\epsilon=2.5\%$. The estimated wind speed is observed to follow the challenging trends of this time series, matching both the low and high frequencies. In the top zoom, no phase lag is observed in the estimated wind speed, but the estimated value is overshooting. 
+% 
+% There are several potential sources of errors in the current methodology.
+% One concern is whether the unsteady aerodynamic torque, can be determined using a look-up table that uses instantaneous values.
+% % 
+% The relative error between the unsteady torque 
+% $Q_{a,\text{ref}}$
+% and the tabulated torque, $Q_{a,\text{tab}}(\bar{u}_\text{ref},\Omega_\text{ref}, \theta_{p,\text{ref}})$, 
+% is used as the $x$-axis on the right of \autoref{fig:WSEstimatorTS}.
+% A wide range of values is obtained, with the error varying between $-40\%$ and $20\%$. Such estimation of the torque is likely to be accurate only for slow varying wind fields, where the effects of dynamic wake and dynamic stall on the blade loading will be limited.
+%     The tabulated method may be improved by accounting for these unsteady aerodynamic effects (discussed in \autoref{sec:discussions}).
+% % 
+% % It is to be noted that the aerodynamic torque will be estimated using the Kalman filter and not using 
+% % 
+% Another question is whether the effective wind speed, that characterizes the aerodynamic forces on the turbine, is indeed the average wind speed at the rotor plane. The relative error between $\bar{u}_\text{ref}$ and $u_\text{est}$ is used as $y$-axis on the right figure. A large error on this axis may not necessarily indicate that the estimated wind speed is wrong, since indeed this estimated wind speed is such that $Q_a=Q_{a,\text{tab}}(u_\text{est}, \Omega_\text{ref}, \theta_{p,\text{ref}})$, as a result of the minimization involved in \autoref{eq:TorqueMinimization}. The estimated wind speed may thus be expected to be different from the rotor averaged wind speed.
+% % 
+% During the startup period, the error in wind speed can be large and is uncorrelated to the error in torque, yet a stronger correlation is seen when the turbine is producing power. 
+% Looking at the probability density functions given in the right of \autoref{fig:WSEstimatorTS}, it is seen that the errors in torque and wind speed are centered on zero.
+% The fact that both errors are centered on zero, indicate that when the unsteady torque can indeed be obtained using instantaneous values and tabulated data, the (estimated) effective wind speed is close to the average wind speed at the rotor.
+% Other sources of errors are discussed in \autoref{sec:discussions}.
+% 
+% A more thorough study on the questions raised above are left open for future work. 
+Overall, the results from the test case are encouraging. It is not expected that the estimated wind speed corresponds exactly to the rotor-averaged wind speed. Instead, it is a proxy to assess the instantaneous aerodynamic rotor state.
+Wind-speed estimation is a standard feature of most wind turbine controllers, and it is likely that more advanced features are implemented by manufacturers.
+Any improvement on the methodology would be beneficial for the procedure of loads estimation presented in this work.
+
+
+
+
+
+
+\subsection{Thrust estimation}
+\label{sec:ThrustEstimEx}
+We compute the estimated thrust, $T_{a,\text{est}}$, using \autoref{eq:TaTab} and the wind speed estimated in \autoref{sec:WSEstimEx}.
+In \autoref{fig:WSEstimatorTSThrust}, we compare the estimated thrust value to the unsteady aerodynamic thrust from the simulation, $T_{a,\text{ref}}$.
+The values of $T_{a,\text{tab}}(\bar{u}_\text{ref},\Omega_\text{ref},\theta_{p,\text{ref}})$ are also shown in the figure.
+% 
+% ---------------------------------- FIGURES -------------------------------------
+% From script: Main_101_WSEstimation_Plot.py, folder: C:\Work\EstimatorKalman\code, 2019/11/16
+\noindent\begin{figure}[!htb]\centering%%
+  \includegraphics[width=0.99\textwidth]{WSEstimatorTSThrust}
+  \caption{Comparison of aerodynamic thrusts: $T_{a,\text{ref}}$, obtained from a reference simulation; $T_{a,tab}(\bar{u}_\text{ref})$, obtained from tabulated $C_T$ and the rotor-averaged wind speed from the simulation; $T_{a,\text{est}}=T_{a,\text{tab}}(u_\text{est})$, obtained from the estimated wind speed. (Left:) Time series of thrust and absolute errors compared to the $T_{a,\text{ref}}$. (Right:) Scatterplot of the tabulated thrust compared to the reference thrust.  }\label{fig:WSEstimatorTSThrust}%
+\end{figure}
+% --------------------------------------------------------------------------------
+% 
+We observe that the thrust signal is obtained with a mean relative error of $1.5\%$ over the range of operating conditions considered. 
+The use of the estimated wind speed produces thrust values closer to the reference thrust than if $\bar{u}_\text{ref}$ is used.
+In line with the discussions of \autoref{sec:WSEstimEx}, this supports the fact that the estimated wind speed provides an effective velocity that is consistent with the instantaneous state of the rotor, but different from the rotor-averaged wind speed.
+However, it is also possible that compensating errors are at play, or that the thrust is less sensitive to changes in wind speed or drivetrain dynamics than the torque. 
+Despite these open questions, we continue by assuming that the method provides thrust estimates with sufficient accuracy.
+%         it can be concluded from the results of this example that
+
+
+
+
+
+
+\subsection{Reduced model of the mechanical system}
+\label{sec:MechSys2DOF}
+In this section, we compare the 2 DOF mechanical model presented in \autoref{sec:TwoDof} to the advanced OpenFAST model consisting of 16 DOF.
+As mentioned in \autoref{sec:TwoDof}, we first improve the generalized force formulation acting on $q_t$.
+We adopt the notations from \autoref{fig:ShapeFunctionCoordSystemOnshore}.
+The resulting force and moment at the tower top are written as $\v{\mathcal{F}}_N$ and $\mathcal{M}_N$. The contribution of this load to the generalized force is $\v{f}_N=\m{B}_N\ \cdot [\mathcal{\v{F}}_N;\mathcal{M}_N]$ where, according to the virtual work principle, $\m{B}_N$ is the velocity transformation matrix that provides the velocity of point $N$ as a function of other DOF. Further details on this formalism are provided in \cite{branlard:2019flex}.
+For the single-tower DOF considered, the $B$-matrix consists of the end values of the shape function deflection and slope (i.e., $\m{B}_N=[\Phi_{t,1}(L_t), 0, 0, 0,\nu_1 , 0 ]$, where $L_t$ is the length of the tower
+and $\nu_1 \eqdef \frac{\d \Phi_{t,1}}{\d z}(L_t)$).
+The shape functions are normalized at their extremity (i.e., $\Phi_{t,i}(L_t)=1$), so that the generalized force is:
+\begin{align}
+   f_N = \mathcal{F}_{x,N} + \nu_1 \mathcal{M}_{y,N}
+\label{eq:fN}
+\end{align}
+% 
+We assumed that the main forces acting at the tower top are the aerodynamic thrust and the gravitational force from the rotor nacelle assembly (RNA) mass, $M_\text{RNA}$. We then obtain the loads as:
+\begin{align}
+\mathcal{F}_{x,N} = T_a \cos(\alpha_y+ \theta_\text{tilt})
+    ,\quad
+\mathcal{M}_{y,E} = T_a \left[x_{NR} \sin\theta_\text{tilt} + z_{NR} \cos\theta_\text{tilt} \right]
++ g M_\text{RNA} \left[ x_{NG}\cos\alpha_y +  z_{NG}\sin\alpha_y \right]
+\label{eq:FxMy}
+\end{align}
+where, using \autoref{fig:ShapeFunctionCoordSystemOnshore}: $\theta_\text{tilt}$ is the tilt angle of the nacelle; $NR$ is the vector from the tower top to the rotor center, where the thrust is assumed to act; $NG$ is the vector from the tower top to the RNA center of mass; $g$ is the acceleration of gravity; and $\alpha_y$ is the $y$-rotation of the tower top induced by the tower bending. For a single-tower mode, $\alpha_y(t) = q_t(t) \nu_1$.
+% 
+The linearization of \autoref{eq:fN} and \autoref{eq:FxMy} for small values of $q_t$ leads to:
+\begin{align}
+   f_N = 
+    q_t\left\{-T_a \nu_1 \sin\theta_\text{tilt} 
+   +  \nu_1^2 g M_\text{RNA} z_{NG} \right\}
+   + \left( T_a \cos\theta_\text{tilt} \right)
+   + T_a \nu_1\left[x_{NR}\sin\theta_\text{tilt} +z_{NR} \cos\theta_\text{tilt} \right]
+   + \nu_1 g M_\text{RNA} x_{NG}
+\end{align}
+where the term in parentheses is the main contribution, which justifies the use of $T_a$ in \autoref{eq:Mech2DOF}; the term in curly brackets acts as a stiffness term. The presence of  $T_a$ in this term introduces an undesired coupling, and this term is kept on the right-hand side  of \autoref{eq:Mech2DOF}.
+%
+It is noted that the vertical force, $\mathcal{F}_{z,N}$, contributes to the softening of the tower.
+The main softening effect attributed to the RNA mass is included in the stiffness matrix, as described in \cite{branlard:2019flex}. The contribution of the thrust to the softening, as well as additional contribution of quadratic velocity forces to the generalized force, are neglected.  
+
+
+%     The same simulation as the two previous section is used as a reference.
+% in \autoref{sec:WSEstimEx}
+We obtain the other elements of the 2D model from the OpenFAST input files.
+We use the YAMS library \citep{branlard:2019flex}---which can take as input an OpenFAST model, and thus use the same shape functions---to obtain the mass, stiffness, and damping matrix of \autoref{eq:Mech2DOF}.
+We use velocity transformation matrices to convert individual component matrices (e.g., blades, nacelle) into the global system matrices.
+The mass matrix thereby comprises the inertia terms from the tower and RNA.
+We tuned the damping of the 2 DOF model using simple ``decay'' simulations to include the aerodynamic damping contribution.
+%
+The simulation used for validation consists of a linear ramp of wind speed from $0$ to $10$ \unit{m~s^{-1}} in the first $100$ \unit{s}, and a sudden drop to $6$ \unit{m~s^{-1}} at 200 \unit{s}. 
+The aerodynamic loads and the generator torque are extracted from the OpenFAST simulation and applied as external forces to the reduced-order model.
+% 
+Time series of tower-top positions, rotational speed, and tower-bottom moments are compared in \autoref{fig:Mech2DOFTS}.
+%
+% ---------------------------------- FIGURE --------------------------------------
+% From script: Main_201_MechanicalModel_Plot.py, folder: C:\Work\EstimatorKalman\code, 2019/11/25
+\noindent\begin{figure}[!htb]\centering%
+\hfill
+  \includegraphics[width=0.48\textwidth]{Mech2DOFTS}
+\hfill
+  \includegraphics[width=0.48\textwidth]{Mech2DOFTwrLoads}
+\hfill\ 
+  \caption{Simulation results using OpenFAST (16 DOF) and the reduced 2 DOF model. (Left): Rotational speed and tower-top (TT) displacements. (Right:) Tower moments at three different heights: tower bottom (TB), tower middle (TM), and tower top (TT). The tower-bottom moment is taken at 5\% height above the ground and not exactly at the ground.}\label{fig:Mech2DOFTS}%
+\end{figure}
+% --------------------------------------------------------------------------------
+%
+We observe that the rotational speed is well captured, indicating that the rotational inertia is properly set, but also indicating that the drivetrain torsion does not have a strong impact for this simulation.
+The overall trend of the tower-top displacements is also  well captured, though more differences are present as a result of missing contributions from additional blade and tower DOF, missing nonlinearities, and quadratic velocity forces. 
+
+We use the method from \autoref{sec:Fatigue} to estimate the bending moments along the tower from the tower-top displacement. The results shown on the right of \autoref{fig:Mech2DOFTS} indicate that the overall trends and load levels are well estimated, but some offsets are observed, which are a function of height. A contribution to the moment may be missing in the current model. This will be taken into consideration when analyzing the results from the Kalman filter analysis.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% --------------------------------------------------------------------------------}
+% --- Full application 
+% --------------------------------------------------------------------------------{
+\section{Application to wind turbine tower loads estimation}
+\label{sec:FullCases}
+Some of the individual models presented in \autoref{sec:Description} were briefly validated in \autoref{sec:SimpleCases}. In this section, we use the augmented Kalman filter described in \autoref{sec:AugmentedKalmanFilter}, combining the different models together with the measurements. We implement the state and output equations given in \autoref{eq:StateEq2DOF} and \autoref{eq:OutputEq2DOF}. We discretize the state equation according to \autoref{eq:DiscreteForm}.
+Results from the Kalman filter simulation, which combines a set of measurements with a model, will be referred to as ``KF estimation.''
+The values used for the covariance matrices, $\m{Q}$ and $\m{R}$, are discussed in \autoref{sec:discussions}.
+
+
+\subsection{Ideal cases without noise}
+\label{sec:canonical}
+% 
+The same simulation as the one presented in \autoref{sec:WSEstimEx} is used, which extends from Region 0 to Region 3. The measurements sampled at $20$ \unit{Hz} are taken directly from the OpenFAST simulation and not from a field experiment. This is obviously an ideal situation because no noise or bias are present in the measurements. Further, the OpenFAST and Kalman filter models are based on the same parameters, such as the mass and stiffness distribution. 
+%
+%
+In \autoref{fig:KalmanTS}, we compare the states and tower loads estimated using the Kalman filter model with the simulation results.
+%
+% ---------------------------------- FIGURES -------------------------------------
+% From script: Main_300_Kalman_2DOF_7States.py, folder: C:\Work\EstimatorKalman\code, 2019/11/27
+\noindent\begin{figure}[!htb]\centering%%
+  \hfill\includegraphics[width=0.99\textwidth]{KalmanTS}\hfill
+  \caption{Comparison of signals simulated by OpenFAST (reference) compared with the ones estimated with the Kalman filter model. From top to bottom, dimensionless time series of: aerodynamic torque, aerodynamic thrust, tower-top displacement, and fore-aft tower-bottom moment. }\label{fig:KalmanTS}%
+\end{figure}
+% --------------------------------------------------------------------------------
+%
+The signals are observed to be well estimated by the Kalman filter model over the entire range of operating regions.
+The error observed for the tower-bottom moment is in the range of errors observed for the isolated mechanical system (\autoref{sec:MechSys2DOF}).
+
+We ran a turbulent simulation at an average wind speed of $14$ \unit{m~s^{-1}} with a turbulence intensity of $0.14$ to illustrate the differences in the power spectral density of the signals. 
+The results are displayed in \autoref{fig:KalmanFFT} and commented on further.
+%
+% ---------------------------------- FIGURE --------------------------------------
+% From script: Main_301_7StatesPlots.py, folder: C:\Work\EstimatorKalman\code, 2019/11/29
+\noindent\begin{figure}[!htb]\centering%
+  \includegraphics[width=0.99\textwidth]{KalmanFFT}
+  \caption{Power spectral density (PSD) of signals simulated by OpenFAST and estimated with the Kalman filter model for a turbulent simulation at 14 \unit{m~s^{-1}}. From left to right: rotational speed, thrust, tower-top displacement, and tower-bottom fore-aft moment. Ticks on the y-axis represent two decades. The main system frequencies are marked with vertical lines: FA modes, DT, and multiples of the rotational frequency $p=0.2$.}\label{fig:KalmanFFT}%
+\end{figure}
+% --------------------------------------------------------------------------------
+%
+Frequencies that are not in the mechanical system (e.g., the second fore-aft [FA] mode and the drivetrain torsion [DT]) are still ``captured'' by the estimator via the measurements.
+The rotational speed is directly observable by the Kalman filter, so the signal is obviously well estimated.
+The thrust is estimated based on the rotational speed, and thus exhibits similar frequencies as the rotational speed, which is not the case for the reference thrust signal.
+% 
+The integration of the acceleration into the tower-top position ($q_t$) shows a higher frequency content than the reference signal. The second FA frequency has a strong energy content in the estimated, $q_t$, signal. This frequency content comes from the acceleration signal, but it is not sufficiently captured and damped by the model, which does not represent the second mode.
+A moving average filter of period $1$ \unit{s} was introduced to reduce the high-frequency content of the acceleration. The results are labeled ``Estimation w/filt.'' on the figure.
+The analysis of the moment spectrum given on the right of \autoref{fig:KalmanFFT} indicates that the frequencies are well captured but the overall content at frequencies beyond the first FA mode is too high.
+This is indicated by the values of the equivalent loads, which are respectively $20$ \unit{MNm} and $30$ \unit{MNm} for the reference and estimated signal, using a W{\"o}hler slope of $m=5$. 
+The low-pass filter on the acceleration signal greatly improves the spectrum of $M_y$.
+The error in equivalent loads is further quantified in \autoref{sec:NoiseAndFilter}.
+
+
+
+
+
+\subsection{Simulations with noise}
+\label{sec:NoiseAndFilter}
+The simulations presented in \autoref{sec:canonical} used the simulated values from OpenFAST as measurements. In this section, a Gaussian noise is added to each of the OpenFAST signals to account for measurement uncertainties. The noise level is taken as $10$\% of the standard deviation of the signal simulated by OpenFAST. A noise level of $20\%$ will be referred to as ``large noise.''
+We performed OpenFAST simulations for 10 wind speeds, with 6 different turbulent seeds for each wind speed. We applied a noise level to these simulation results prior to feeding them to the Kalman filter estimator. Cases with or without applying the low-pass filter on the (noisy) acceleration input were tried. 
+\autoref{fig:KalmanMultiNoise} displays results for the error in equivalent load and standard deviation of the tower-bottom moment. The equivalent loads are estimated using a W{\"o}hler slope of $m=5$.
+%
+% ---------------------------------- FIGURE --------------------------------------
+% From script: Main_402_KalmanMultiNoise_Plot.py, folder: C:\Work\EstimatorKalman\code, 2019/11/30
+\noindent\begin{figure}[!htb]\centering%
+  \includegraphics[width=0.80\textwidth]{KalmanMultiNoise}
+  \caption{Comparison of the equivalent load and standard deviation of the tower-bottom moment as obtained by OpenFAST or as estimated from the Kalman filter estimator, for different noise levels and with or without a filter on the acceleration input. (Left): Error in standard deviation. (Right:) Error in equivalent load. A positive value indicates that the estimator is overestimating. Individual markers indicate a simulation at a given wind speed and turbulence seed number. Lines indicate the mean values.}\label{fig:KalmanMultiNoise}%
+\end{figure}
+% --------------------------------------------------------------------------------
+%
+As expected, the errors in standard deviation and equivalent loads follow similar trends. Errors without filtering are severalfold larger than when the acceleration is filtered.
+Without noise, the equivalent loads are estimated with $\pm8$\% error. The error increases with the noise level and the equivalent loads appear to be mostly overestimated. Further tuning of the filter and the covariance matrices involved in the Kalman filter may reduce the error. Further discussions are provided in \autoref{sec:discussions}.
+
+
+
+
+\subsection{Computational time}
+We wrote this framework in the noncompiled Python language and ran the code on a single CPU.
+The average computational time for a 10 \unit{min} period of measurements at 20 \unit{Hz} was 37 \unit{s}. Doubling the frequencies and the number of DOF would still keep the computational time severalfold smaller than real time. The expensive part of the algorithm is the nonlinear solve needed to find the optimal wind speed (\autoref{eq:TorqueMinimization}). 
+
+
+
+
+
+
+% --------------------------------------------------------------------------------}
+% ---  
+% --------------------------------------------------------------------------------{
+\section{Discussion and future work}
+\label{sec:discussions}
+
+\runinhead{General limitations} 
+The main limitation of the method lays in its dependency on the measurements and the numerical wind turbine model. Despite the Kalman filter being an optimal estimator that continuously adapts to its inputs, significant errors in the measurements or model would lead to unusable results. Complex online systems would be required to alleviate this issue, for instance, by continuously: assessing the measurement quality, updating the wind turbine model parameters, and adapting the estimator model.
+More specific limitations are discussed in the subsequent paragraphs.
+    
+\runinhead{Digital twin concept} 
+A complete digital replica of a continuous system would require an infinite number of variables to represent it, which cannot be achieved. The level of details and complexity of a digital twin is thereby chosen based on its potential application. This article was limited to the estimation of: the wind speed, the integrated aerodynamic loads, and few structural degrees of freedom. This partial set provides relevant inputs for structural dynamics applications, such as the estimation of the tower fatigue. Other applications would add more modules to the digital twin.
+
+
+\runinhead{Digital twin implementation} 
+The model presented in this article was implemented such that it could be used as an online digital twin. Nevertheless, it was not connected to a real wind turbine. Such implementation would require a server running continuously and having access to the data stream from a real turbine. Additional implementation steps would be necessary to handle possible communication disruptions, server maintenance, and data storage.
+
+
+\runinhead{Measurements} 
+The results presented in the current study remained within the simulation realm. The accuracy of the method under uncertain conditions was partly quantified using various noise levels. 
+% Evaluating and improving the model 
+% Yet, the obvious next step is to evaluate the model using measurements.
+Future work will evaluate the model using field measurement data.
+
+
+\runinhead{Model choices}
+A Kalman filter technique was chosen for this study, but other load estimation techniques may be used, such as lookup tables, modal expansion, machine learning, neural networks, polynomial chaos expansion, deconvolution, or load extrapolation.
+% The study limited itself
+For the Kalman filter model, a certain level of choice is present as to whether the loads are placed as an input or within the state vector, as mentioned in \autoref{sec:AugmentedKalmanFilter}.  
+A consequence is that different load models may also be implemented, such as models of higher order that the one used in \autoref{eq:FirstOrderP}. 
+In the current study, a ``random walk'' force model was used for the torque, and the thrust was set as a dependent variable of the torque.
+However, these loads are functions of the axial inductions, which are typically assumed to follow a second-order model referred to as ``dynamic wake.'' 
+A linearization of this model could be applied to the aerodynamic thrust and torque and potentially improve the performance prediction of the Kalman filter. 
+
+\runinhead{Nonlinearities and time invariance}
+This study assumed a linear form of the equation of motion and that the system matrices were time-invariant.
+Despite this crude assumption, reasonable results were obtained. 
+Further improvements are likely to be obtained if these assumptions are lifted. 
+A simple approach would consist of updating the system matrices at some given interval based on a slow moving average on the wind speed or the tower-top position. 
+An advanced method would use filtering methods that are adapted to nonlinear systems, such as extended Kalman filters or particle filters. 
+This approach would, however, greatly increase the computational time.
+A shortcoming of the current approach is that the linear form of the equation was established ``by hand.'' 
+A systematic approach will be considered in the future using the linearized form of the state matrices returned by OpenFAST, which would include aerodynamic damping directly.
+
+\runinhead{Degrees of freedom and offshore application}
+The general formalism presented in \autoref{sec:Description} can be applied to more degrees of freedom than the 2 DOF model used by adding more shape function for the tower and including side-side motion, yaw, tilt, shaft torsion, and blade motions.
+Improvements on the method are expected to be achieved by increasing the number of measurements and states. 
+The results from the 2 DOF model appeared encouraging enough to limit ourselves to this set, but future work will consider the inclusion of additional DOF.
+In particular, transverse acceleration measurements and states could help capture the rotor asymmetric loading.
+The extension of the method to offshore application could be done by adding extra degrees of freedom for the substructure, or by using shape functions that represent the entire support structure. The generalized force induced by the wave loading would need to be included. 
+This force may be modeled based on the wind speed, or assumed to be part of the model noise (see \autoref{sec:AugmentedKalmanFilter}).
+
+\runinhead{Model tuning}
+Apart from  the choices of degrees of freedom and model formulation, there remains a part of model tuning through the choice of covariance matrices and the potential filtering done on the measurements.
+As shown in \autoref{sec:NoiseAndFilter}, the filtering of the acceleration was observed to greatly improve the performance of the model. A time constant of $1$ \unit{s} was chosen empirically for the filter, but this value may need to be adapted for other applications. 
+The choice of values used for the covariance matrices is usually the main source of criticism for Kalman-filter-based models. 
+Indeed, these values have a strong influence on the results, and they are usually tuned empirically. 
+For the current method to be successfully applied on various wind plants, an automatic tuning procedure is required. 
+In the current study, the covariance matrices of the process were set automatically based on the value of the standard deviation of the simulated signal at rated conditions. For the measurements, these values were divided by two. 
+We found that this procedure led to satisfactory results. A sensitivity study should be considered in future work to give further insight on the procedure, particularly if more states and measurements are used.
+
+
+\runinhead{Wind speed estimation and standstill/idling condition}
+The wind speed estimation model presented in \autoref{sec:WSEst} is limited to cases where the turbine is operating.
+Also, the accuracy of this model is crucial for the determination of the thrust, which in turn determines the tower-top position and the tower loads. 
+The nacelle velocity was omitted in the current study and could be considered in future studies. The industry has great expertise in wind speed estimation, and improvements on the algorithm would benefit the model presented in this article. 
+        
+\runinhead{Airfoil performance}
+The performance of the airfoils is a large source of uncertainty that was not addressed. 
+The thrust was determined using tabulated $C_T$ data, which may be significantly affected by the airfoil performance, which in turn are affected by blade erosion or other roughness sources and additional uncertainty on the aerodynamic modeling. 
+Further improvement of the model is thus required to provide an accurate determination of the thrust that would account for such unknowns.
+Air density should also be considered for a correct account of the loading if a tabulated approach is used.
+
+
+
+
+% --------------------------------------------------------------------------------}
+% --- Conclusions 
+% --------------------------------------------------------------------------------{
+\conclusions
+In this article, we presented a general approach using Kalman filtering to estimate loads on a wind turbine, combining a mechanical model and a set of readily available measurements. 
+The main source of inaccuracy of the method is related to the inaccuracy of the measurements and the mechanical model. 
+We established an open-source framework in the hope that it will be further applied for real-time fatigue estimation of wind turbine loads, providing inspiration for a digital-twin concept.
+% 
+As an example, we presented the equations for a 2 DOF system of a wind turbine, and this system was used throughout the article. The study focused on the estimation of tower bending moment, and in particular the associated damage equivalent load. Based on simulation results, we observed that the estimator was able to capture the damage equivalent loads with an accuracy on the order of $10$\%.
+Future work will address the following points: use of field measurements, offshore application of the method, increased number of DOF, automatic covariance tuning, improved wind speed estimation in standstill, improved thrust determination in off-design conditions, and use of a linearized model obtained from an aeroservoelastic tool.
+
+
+
+
+
+
+\authorcontribution{
+The main concept behind this work originated from discussions between E. Branlard and C. Brown.
+E. Branlard performed the model derivations and wrote the article. 
+C. Brown provided valuable feedback on the article and the methodology used. 
+D. Giardina wrote a preliminary implementation of the model during his participation in a Science Undergraduate Laboratory Internship at NREL. 
+E. Branlard extended the scripts to perform the analyses presented in this work. }
+
+\competinginterests{No competing interests are present.} %% this section is mandatory even if you declare that no competing interests are present
+
+
+% \codeavailability{\url{https://github.com/ebranlard/yams}} %% use this section when having only software code available
+
+% \disclaimer{TEXT} %% optional section
+%% REFERENCES
+%% The reference list is compiled as follows:
+
+
+\bibliographystyle{copernicus}
+\bibliography{Bibliography}
+
+% \begin{acknowledgements}
+% TEXT
+% \end{acknowledgements}
+
+
+
+%% LITERATURE CITATIONS
+%%
+%% command                        & example result
+%% \citet{jones90}|               & Jones et al. (1990)
+%% \citep{jones90}|               & (Jones et al., 1990)
+%% \citep{jones90,jones93}|       & (Jones et al., 1990, 1993)
+%% \citep[p.~32]{jones90}|        & (Jones et al., 1990, p.~32)
+%% \citep[e.g.,][]{jones90}|      & (e.g., Jones et al., 1990)
+%% \citep[e.g.,][p.~32]{jones90}| & (e.g., Jones et al., 1990, p.~32)
+%% \citeauthor{jones90}|          & Jones et al.
+%% \citeyear{jones90}|            & 1990
+
+%%% TABLES
+%\begin{table}[t]
+%\caption{TEXT}
+%\begin{tabular}{column = lcr}
+%\tophline
+%\middlehline
+%\bottomhline
+%\end{tabular}
+%\belowtable{} % Table Footnotes
+%\end{table}
+%
+%%% PHYSICAL UNITS
+%%% Please use \unit{} and apply the exponential notation
+
+% \input{tKalmanFilterNotes.tex}
+
+
+
+%% The following commands are for the statements about the availability of data sets and/or software code corresponding to the manuscript.
+%% It is strongly recommended to make use of these sections in case data sets and/or software code have been part of your research the article is based on.
+% \dataavailability{TEXT} %% use this section when having only data sets available
+% \codedataavailability{TEXT} %% use this section when having data sets and software code available
+% \sampleavailability{TEXT} %% use this section when having geoscientific samples available
+% \videosupplement{TEXT} %% use this section when having video supplements available
+
+
+% \appendix
+% \section{}    %% Appendix A
+% \subsection{}     %% Appendix A1, A2, etc.
+% \noappendix       %% use this to mark the end of the appendix section
+%% Regarding figures and tables in appendices, the following two options are possible depending on your general handling of figures and tables in the manuscript environment:
+
+%% Option 1: If you sorted all figures and tables into the sections of the text, please also sort the appendix figures and appendix tables into the respective appendix sections.
+%% They will be correctly named automatically.
+%% Option 2: If you put all figures after the reference list, please insert appendix tables and figures after the normal tables and figures.
+%% To rename them correctly to A1, A2, etc., please add the following commands in front of them:
+% \appendixfigures  %% needs to be added in front of appendix figures
+% \appendixtables   %% needs to be added in front of appendix tables
+%% Please add \clearpage between each table and/or figure. Further guidelines on figures and tables can be found below.
+
+% 
+
+
+\end{document}

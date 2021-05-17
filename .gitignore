@@ -1,0 +1,10 @@
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.pdf
+*.gz
+figs_svgtex/
+tags
+_misc*
