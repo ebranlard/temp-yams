@@ -1,0 +1,13 @@
+Dear editor,
+
+This paper contains the following contributions:
+- a new and opensource symbolic framework in Python to derive the equations of motion of multibody systems with rigid and flexible bodies. 
+- a concise but extensive presentation of the necessary equations required to derive the equations of motion of an arbitrary system
+- some dedicated wind energy functionalities are provided for convenience to quickly setup wind turbine models (non-linear or linearized equations of motions) with various (arbitrary) number of degrees of freedom and time integrate them
+- simple analytical models of wind turbines (for education, insights, quick evaluations, or research) are provided and verified. 
+
+This paper lays the theoretical foundation of our framework. A complete treatment requires some extensive mathematical definitions. We have tried to move some of it to the appendix to focus on the important aspects at the beginning of the text. The examples provided are fairly simple (a couple of degrees of freedom), but we believe they are fundamental to the study of wind turbine dynamics (onshore or offshore). These examples can be used for fundamental studies (by ourselves and hopefully the community) using analytical models instead of numerical models. Our framework can support models with larger number of degrees of freedom, but we want to focus on advanced applications in future work. The range of applications is fairly wide: numerical time-domain tools (like OpenFAST), stability analyses, frequency domain analyses, controller design, digital twins, etc. The issue is that such applications would require some writing on the external forces, which would increase the length of the paper, so we have tried to focus on the structural dynamics part. We will be happy to submit our follow up studies to your journal in the future. 
+
+In advance, thank you for your consideration,
+
+Emmanuel

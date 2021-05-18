@@ -62,7 +62,7 @@
 \newcommand{\todo}[1]{{\colorbox{yellow}{TODO:}} #1\colorbox{yellow}{/}}
 
 \newcommand{\kanef}{\mathrm{f}}
-\newcommand{\kanee}{\mathrm{E}}
+\newcommand{\kanee}{\mathrm{e}}
 % ---- Commands specific to this project
 % \newcommand{\op}{\text{op}}
 
@@ -71,7 +71,7 @@
 % --------------------------------------------------------------------------------}
 % --- Front page
 % --------------------------------------------------------------------------------{
-\title{A symbolic framework for flexible multibody systems applied to wind energy}
+\title{A symbolic framework for flexible multibody systems applied to horizontal axis wind turbines}
 
 
 \Author[1]{Emmanuel}{Branlard}
@@ -99,8 +99,13 @@
 % --- Abstract
 % --------------------------------------------------------------------------------{
 \begin{abstract}
-This article presents a symbolic framework to obtain the linear and non-linear equations of motion of a multibody system. Our approach is based on Kane’s method and a nonlinear shape function representation of flexible bodies. The method yields compact symbolic equations of motion with implicit account of the constraints. The general framework and the automatic generation of the equations provides granularity to obtain models of various levels of fidelity. The symbolic treatment allows for the obtention of analytical gradients and linearized equations of motion. This linearization approach is severalfold faster than multiple OpenFAST linearizations because it gives results for all operating points at once.
-In this paper, we describe the method used in our framework to generate the equations of motion. We compare our results with OpenFAST simulations for different models and discuss the applications and limitations of the method. A Python implementation is provided as an opensource project. 
+The article presents a symbolic framework that is used to obtain the linear and non-linear equations of motion of a multibody system including rigid and flexible bodies. Our approach is based on Kane's method and a nonlinear shape function representation for flexible bodies. The method yields compact symbolic equations of motion with implicit account of the constraints. 
+The general and automatic framework facilitate the creation and manipulation of models with various levels of fidelity.
+The symbolic treatment allows for the obtention of analytical gradients and linearized equations of motion. The linear and non-linear equations can be exported to Python code or dedicated software. The application are multiple such as: time-domain simulation, stability analyses, frequency domain analyses, advanced controller design, state observers, digital twins, etc.
+In this paper, we describe the method we used to systematically generate the equations of motion of multibody systems. We apply the framework to generate illustrative onshore and offshore wind turbine models. We compare our results with OpenFAST simulations and discuss the advantages and limitations of the method. A Python implementation is provided as an opensource project. 
+% provides granularity to obtain models of various levels of fidelity.
+% The general framework and the automatic generation of the equations provides granularity to obtain models of various levels of fidelity.
+% This linearization approach is severalfold faster than multiple OpenFAST linearizations because it gives results for all operating points at once.
 % than multiple OpenFAST linearizations because it gives results for all operating points at once.
 % Most importantly, the different applications listed above are obtained from the same standardized
 % and intuitive model description. The user only needs to describe the individual bodies of the system,
@@ -124,7 +129,7 @@ In this paper, we describe the method used in our framework to generate the equa
 
 The next generation of wind turbine digital technologies requires versatile aero-servo-hydro-elastic
 models, with various levels of fidelity, suitable for a wide range of applications. 
-Such applications include: time domain simulations, linearization (for controller design and tuning, or frequency domain analyses), analytical gradients (for optimization procedures), generation of dedicated code (for standalone simulations, state observers or digital twins). 
+Such applications include: time domain simulations, linearization (for controller design and tuning, or frequency domain analyses), analytical gradients (for optimization procedures), generation of dedicated, high-performance or embedded code (for standalone simulations, state observers or digital twins). 
 % A parameter identification from time-series data is not required (La Cavae et al., 2016),
 % (Loew and Obradovic, 2018).
 % In this work, we use well-establish techniques and leverage the current capabilities of symbolic
@@ -136,7 +141,7 @@ Such applications include: time domain simulations, linearization (for controlle
 % • Further processing by specialized tools, e.g. for the generation of high performance NMPC code
 % such as acados (Verschueren et al., 2018)
 Current models are implemented for a specific purpose and usually based on an heuristic structure.
-Aeroelastic tools, such as Flex~\citep{flexoye,branlard:2019flex} or ElastoDyn~\citep{openfast}, rely on an assumed chain of connection between bodies and predefined orientation of shape functions. Linearization tools such as hawcstab2~\citep{Sonderby:2014} or OpenFAST~\citep{openfast} are dedicated to horizontal axis wind turbines and the evaluation of the gradients are limited to hard-coded analytical expressions or numerical finite-differences. 
+Aeroelastic tools, such as Flex~\citep{flexoye,branlard:2019flex} or ElastoDyn~\citep{openfast}, rely on: an assumed chain of connections between bodies, a given set of degrees of freedom, and predefined orientations of shape functions. Tools with linearization capabilities, such as hawcstab2~\citep{Sonderby:2014} or OpenFAST~\citep{openfast} are dedicated to horizontal axis wind turbines and the evaluation of the gradients are limited to hard-coded analytical expressions or numerical finite-differences. 
 % TODO add more examples
 Small implementation changes often require an extensive redevelopment, and the range of applications of the tools remain limited \citep{Simani:2015}.
 
@@ -151,20 +156,22 @@ The method yields compact symbolic equations of motion with implicit account of 
 % OpenFAST.
 Similar approaches have been presented in the literature: \cite{Kurtz:2009}, \cite{Merz:2018}, \cite{Lemmer:2018}, \cite{branlard:2019flex}. Our framework differs in the fact that all equations are processed at a symbolic level and therefore the model can be used in its nonlinear or linearized form. 
 % We implemented an open-source versionne in Python, using Sympy~\citep{sympy} and leveraging its mechanical toolbox, and the other one in Maxima.
-We implemented an open-source version in Python using Sympy~\citep{sympy},  leveraging its mechanical toolbox.
-Alternative symbolic frameworks found in the literature are usually limited to rigid bodies \citep{Verlinden:2005,Kurtz:2009,Gede:2013}.
+We implemented an open-source version in Python using SymPy~\citep{sympy},  leveraging its mechanical toolbox.
+Alternative symbolic frameworks found in the literature are usually limited to rigid bodies \citep{Verlinden:2005,Kurtz:2009,Gede:2013,Docquier:2013}, or closed-source~\citep{Autolev,NeweulM2,MotionGenesis}, and cannot be directly processed in Python. 
 
-
+% ion and distinguish our approach from autolev, robotran and MBDyn.
+% We are open source and programmable: everything starts in python and can be directly used for further processing in python. No vendor lockin
 
 % TODO
 % Using a symbolic framework offers great advantages in terms of speed and may allow for features that are not available in currently available tools.
 % \citep{YAMSgithub}
 
 
-In \autoref{sec:method}, we present the formalism used to derive the equations of motion. The equations can readily be implemented into a numerical software, 
+In \autoref{sec:method}, we present the formalism used to derive the equations of motion. 
+%     The equations can readily be implemented into a numerical software, 
 %    similar to the . They are the underlying formulations behind numerical wind turbine codes such as OpenFAST~\citep{openfast}, and Flex~\citep{flexoye,branlard:2019flex}.
-    In \autoref{sec:implementation}, we mention how the equations were implemented into a symbolic calculation framework. 
-Example of applications relevant to wind energy are given in \autoref{sec:applications}. Discussions and conclusions follow.
+    In \autoref{sec:implementation}, we given an overview of how the equations were implemented into a symbolic calculation framework, to easily manipulate the equations and generate dedicated code. 
+Example of applications relevant to wind energy are given in \autoref{sec:WEapplications}. Discussions and conclusions follow.
 
 % We start by describing the method used in our framework to generate the 
 % equations of motion. We then apply the method to onshore and offshore wind turbine models and compare our results with OpenFAST simulations. We close the paper by discussing applications and limitations of the method.
@@ -186,26 +193,30 @@ Example of applications relevant to wind energy are given in \autoref{sec:applic
 \section{Method to obtain the equations of motion}
 \label{sec:method}
 
-In this section, we present the formalism used to setup the equations of motion. The implementation of these equations into a symbolic calculation framework is discussed in \autoref{sec:implementation}.
+In this section, we present the formalism used to setup the equations of motion. 
+%     The implementation of these equations into a symbolic calculation framework is discussed in \autoref{sec:implementation}.
 
 \subsection{System definition and kinematics}
 We consider a system of $n_b$ bodies, rigid or flexible, connected by a set of joints. For simplicity, we assume that no kinematic loops are present in the system, and the mass of the bodies are constant. An inertial frame is defined to express the positions, velocities and accelerations of the bodies. We adopt a minimal set of generalized coordinates, $\v{q}$, of dimension $n_q$, to describe the kinematics of the bodies: joint coordinates describing the joints displacements, and Rayleigh-Ritz coordinates for the amplitudes of the shape functions of the flexible bodies (see, e.g.~\cite{branlard:2019flex}).
-The choice of coordinates is left to the user, but it is assumed to form a minimal set. We will provide illustrative examples in \autoref{sec:applications}.
+The choice of coordinates is left to the user, but it is assumed to form a minimal set. We will provide illustrative examples in \autoref{sec:WEapplications}.
 
-At a given time, the position, orientations, velocities, and accelerations of all the points of the structure are entirely determined by the knowledge of $\v{q},\v{\dot{q}}$ and $\v{\ddot{q}}$. 
+At a given time, the positions, orientations, velocities, and accelerations of all the points of the structure are entirely determined by the knowledge of $\v{q},\v{\dot{q}}$ and $\v{\ddot{q}}$. 
 % The determination of the kinematics are typically straightforward. 
 For a given body $i$, and a point $P$ belonging to the body, the position, velocity and acceleration of the point are given by~(see e.g. \cite{shabana:book}):
 \begin{align}
 \v{r}_P &= \v{r}_i + \v{s}_P = \v{r}_i+\v{s}_{P_0}+\v{u}_P\\
-\v{v}_P &= \v{v}_i + \v{\omega}_i, \times\v{s}_{P} + (\v{\dot{u}}_P)_i\\
+\v{v}_P &= \v{v}_i + \v{\omega}_i\times\v{s}_{P} + (\v{\dot{u}}_P)_i\\
 \v{a}_P &= \v{a}_i + \v{\omega}_i\times(\v{\omega}_i\times \v{s}_P) 
         + \v{\dot{\omega}}_i\times\v{s}_{P}
         + 2\v{\omega}_i\times (\v{\dot{u}}_P)_i
         + (\v{\ddot{u}}_P)_i
       %\label{eq:}
 \end{align}
-where: $\v{r}_i$, $\v{v}_i$ and $\v{a}_i$ are the position, velocity and acceleration of the origin of the body; $\v{s}_{P_0}$ is the initial position vector of point $P$ with respect to the body origin; $\v{u}_P$ is the elastic displacement of the point ($0$ for rigid bodies); $\v{\omega}_i$ is the rotational velocity of the body with respect to the inertial frame;  $(\dot{\ })$ and $(\dot{\ })_i$ refer to time derivatives in the inertial and body frame respectively. We define the transformation matrix $\m{R}_i$ which transforms coordinates from the body frame to the inertial frame, and by definition
-$[\v{\tilde{{\omega}}}_i] = \v{\dot{R}}_i\v{R}_i^T$, where $[\tilde{\ \ }]$ represents the skew symmetric matrix.
+where: $\v{r}_i$, $\v{v}_i$ and $\v{a}_i$ are the position, velocity and acceleration of the origin of the body; $\v{s}_{P_0}$ is the initial (undeformed) position vector of point $P$ with respect to the body origin; $\v{u}_P$ is the elastic displacement of the point ($0$ for rigid bodies); $\v{\omega}_i$ is the rotational velocity of the body with respect to the inertial frame;  $(\dot{\ })$ and $(\dot{\ })_i$ refer to time derivatives in the inertial and body frame respectively. 
+Throughout the paper, we use bold symbols for vectors and matrices, and uppercase symbols for most matrices.
+The elastic displacement is obtained as a superposition of elastic deformations (see~\autoref{sec:flexiblebodies}).
+We define the transformation matrix $\m{R}_i$ which transforms coordinates from the body frame to the inertial frame, and by definition
+$[\v{\tilde{{\omega}}}_i] = \v{\dot{R}}_i\v{R}_i^T$, where $[\tilde{\ \ }]$ represents the skew symmetric matrix. 
 
 
 
@@ -261,29 +272,36 @@ where $m_i$ is the mass of the body, $\v{a}_{G,i}$ is the acceleration of its ce
 \autoref{eq:InertialLoadsRigid} is a vectorial relationship, it may therefore be evaluated in any coordinate system. 
 The component $f_{ri}^*$ is defined as:
 \begin{align}
-   \kanef_{ri}^* &= \v{J}_{v,ri}^* \cdot \v{f}_i^*  + \v{J}_{\omega,ri} \cdot \v{\tau}_i^*
-   ,\quad\text{with}\quad
-    \v{J}_{v,ri}^* = \frac{\partial \v{v}_{G,i}}{\partial \dot{q}_r}
-    ,\quad
-    \v{J}_{\omega,ri} = \frac{\partial \v{\omega}_{i}}{\partial \dot{q}_r}
-    ,\quad r=1\cdots n_q
+   \kanef_{ri}^* &= \v{J}_{v,ri} \cdot \v{f}_i^*  + \v{J}_{\omega,ri} \cdot \v{\tau}_i^*
+%    ,\quad\text{with}\quad
+%     \v{J}_{v,ri} = \frac{\partial \v{v}_{G,i}}{\partial \dot{q}_r}
+%     ,\quad
+%     \v{J}_{\omega,ri} = \frac{\partial \v{\omega}_{i}}{\partial \dot{q}_r}
+%     ,\quad r=1\cdots n_q
     \label{eq:frstarRigid}
 \end{align}
+with
+\begin{align}
+    \v{J}_{v,ri} = \frac{\partial \v{v}_{G,i}}{\partial \dot{q}_r}
+    ,\quad
+    \v{J}_{\omega,ri} = \frac{\partial \v{\omega}_{i}}{\partial \dot{q}_r}
+\end{align}
 where $\v{v}_{G,i}$ is the velocity of the body masscenter with respect to the inertial frame.
-Equivalently, $\kanef_{ri}^*$ can be obtained using the partial velocity of any body point (e.g. the origin) by carefully transferring the inertial loads to the chosen point.
+The partial velocities, or Jacobians, $\v{J}_v$ and $\v{J}_\omega$, are key variables of the Kane's method. They project the physical coordinates into the generalized coordinates ($\v{q}$), inherently accounting for the kinematic constraints between bodies. In numerical implementations, the Jacobians are typically stored in matricial forms, referred to as velocity transformation matrices.
+The terms $\kanef_{ri}^*$ can equivalently be obtained using the partial velocity of any body point (e.g. the origin) by carefully transferring the inertial loads to the chosen point.
 The external forces and torques acting on the body are combined into an equivalent force and torque acting at the center of mass, written $\v{f}_i$  and $\v{\tau}_i$. 
 The component $\kanef_{ri}$ is then given by:
 \begin{align}
-   \kanef_{ri} &= \v{J}_{v,ri}^* \cdot \v{f}_i  + \v{J}_{\omega,ri} \cdot \v{\tau}_i
-    ,\quad r=1\cdots n_q
+   \kanef_{ri} &= \v{J}_{v,ri} \cdot \v{f}_i  + \v{J}_{\omega,ri} \cdot \v{\tau}_i
+%     ,\quad r=1\cdots n_q
     \label{eq:frRigid}
 \end{align}
-Equivalently, the contributions from each individual force, $\v{f}_{i,j}$, acting on a point $P_j$ of the body, and each individual torques, $\v{\tau}_{i,k}$, can be summed using the appropriate partial velocity to obtain $\kanef_{ri}$:
+Equivalently, the contributions from each individual force, $\v{f}_{i,j}$, acting on a point $P_j$ of the body $i$, and each individual torques, $\v{\tau}_{i,k}$, can be summed using the appropriate partial velocity to obtain $\kanef_{ri}$:
 \begin{align}
    \kanef_{ri} &= \sum_j \frac{\partial \v{v}_{P_j}}{\partial \dot{q}_r} \cdot \v{f}_{i,j}  + \sum_k \v{J}_{\omega,ri} \cdot \v{\tau}_{i,k}
-    ,\quad r=1\cdots n_q
+%     ,\quad r=1\cdots n_q
 \end{align}
-where $\v{P}_j$ is the velocity of the point $j$ with respect to the inertial frame.
+where $\v{v}_{P_j}$ is the velocity of the point $j$ with respect to the inertial frame.
 \autoref{eq:frstarRigid} and \autoref{eq:frRigid}
 are inserted in \autoref{eq:frfrstarMultiBody} to obtain the final equations of motion.
 
@@ -293,8 +311,8 @@ are inserted in \autoref{eq:frfrstarMultiBody} to obtain the final equations of 
 
 We assume that body $i$ is a flexible body and proceed to define the terms $\kanef_{ri}$ and $\kanef_{ri}^*$.
 The dynamics of a flexible body is described in standards textbooks 
-such as \cite{shabana:book,Schwertassek:book}.
-Unlike rigid bodies, the equations for flexible bodies are typically expressed with respect to a reference point different from the center of mass. We will call this point the origin and write it $O_i$.The elastic displacement field of the body is written $\v{u}$. It defines the displacement of any point of the body with respect to its undisplaced position. Using the first order\footnote{We will address the second order approximation in \autoref{sec:AdvancedConsiderations}.} Rayleigh-Ritz approximation, the displacement field is given by the sum of shape function contributions: $\v{u}=\sum_{j=1}^{n_{e,i}} \v{\Phi}_{ij} \v{q}_{e,ij}$, where $\Phi_{ij}$ are the shape functions of body $i$ and $\v{q}_{e,ij}$ are the subset of $\v{q}$ consisting of the elastic coordinates of body $i$, of size $n_{e,i}$. The principles of the shape function approach applied to beams are given in \autoref{sec:ShapeFunctionApproachBeam}. The shape functions are more easily represented in the body coordinate system.  
+such as \cite{shabana:book} or \cite{Schwertassek:book}.
+Unlike rigid bodies, the equations for flexible bodies are typically expressed with respect to a reference point different from the center of mass. We will call this point the origin and write it $O_i$.The elastic displacement field of the body is written $\v{u}$. It defines the displacement of any point of the body with respect to its undeformed position. Using the first order\footnote{We address the second order approximation in \autoref{sec:AdvancedConsiderations} and \autoref{sec:AlternativeFormulations}.} Rayleigh-Ritz approximation, the displacement field at a given point, $P$, is given by the sum of shape function contributions: $\v{u}(P)=\sum_{j=1}^{n_{e,i}} \v{\Phi}_{ij}(P) \v{q}_{e,ij}(t)$, where $\m{\Phi}_{ij}$ are the shape functions (displacement fields) of body $i$ and $\v{q}_{e,ij}$ is the subset of $\v{q}$ consisting of the elastic coordinates of body $i$, of size $n_{e,i}$. The principles of the shape function approach applied to beams are given in \autoref{sec:ShapeFunctionApproachBeam}. The shape functions are more easily represented in the body coordinate system.  
 Vectors and matrices that are explicitly written in the body frame will be written with primes.
 The equations of motion of the flexible bodies are~\citep{Wallrapp:1994}:
 \begin{align}
@@ -318,41 +336,41 @@ The equations of motion of the flexible bodies are~\citep{Wallrapp:1994}:
     \begin{bmatrix}
       0 \\
       0 \\
-      \v{k}_{e,e}\\
+      \v{k}_{e}\\
     \end{bmatrix}_i
       =
     \begin{bmatrix}
-      \v{h}_{x}' \\
-      \v{h}_{\theta}' \\
-      \v{h}_{e,e}\\
+      \v{f}_{x}' \\
+      \v{f}_{\theta}' \\
+      \v{f}_{e}\\
     \end{bmatrix}_i
     \label{eq:EOMFlexibleBody}
 \end{align}
-with: $x$, $\theta$, $e$, subscripts that indicate the translation, rotation and elastic components; $\m{M}$,  the mass matrix of dimension $6+n_{e,i}$; $\v{a}_i$ and $\v{\dot{\omega}}_i$, the linear and angular acceleration of the body (origin) with respect to the inertial frame ; $\v{k}_\omega$, the centrifugal and Coriolis loads, or quadratic velocities ; $\v{k}_e$, the elastic loads ; $\v{h}$, the external loads.
-The different components of $\m{M}$, $\m{k}_\omega$,  $\m{k}_e$ and $\v{h}$ are given in \autoref{sec:FlexibleDefinitions}.  These terms depend on $\v{q}$, $\v{\dot{q}}$, and $\v{\Phi}_i$.
+with: $x$, $\theta$, $e$, subscripts that indicate the translation, rotation and elastic components; $\m{M}$,  the mass matrix of dimension $6+n_{e,i}$ made of the block matrices $\m{M}_{xx},\cdots,\m{M}_{ee}$; $\v{a}_i$ and $\v{\dot{\omega}}_i$, the linear and angular acceleration of the body (origin) with respect to the inertial frame ; $\v{k}_\omega$, the centrifugal, gyration and Coriolis loads, also called quadratic velocities loads; $\v{k}_e$, the elastic strain loads ; $\v{f}$, the external forces, torques and elastic generalized forces.
+The different components of $\m{M}$, $\m{k}_\omega$,  $\m{k}_e$ and $\v{f}$ are given in \autoref{sec:FlexibleDefinitions}.  These terms depend on $\v{q}$, $\v{\dot{q}}$, and $\v{\Phi}_i$.
 % 
-The inertial force, inertial torque and inertial elastic loads are:
+The inertial force, torque and elastic loads are:
 \begin{align}
    \v{f}_{i}^* &= -\m{R}_i\left[\m{M}_{xx}'\v{a}_i' + \m{M}_{x\theta}'\v{\dot{\omega}}_i'  + \m{M}_{xe} \v{\ddot{q}}_{e,i}   + \v{k}_{\omega,x}'     \right]\\
    \v{\tau}_{i}^* &= -\m{R}_i\left[\m{M}_{\theta x}'\v{a}_i' + \m{M}_{\theta \theta}'\v{\dot{\omega}}_i'  + \m{M}_{\theta  e} \v{\ddot{q}}_{e,i}   + \v{k}_{\omega,\theta }'     \right]\\
-   \v{e}_{i}^* &= - \phantom{\m{R}_i}      \left[\m{M}_{e x}'\v{a}_i' + \m{M}_{e \theta}'\v{\dot{\omega}}_i'  + \m{M}_{e  e} \v{\ddot{q}}_{e,i}   + \v{k}_{\omega,e }'     \right]
+   \v{h}_{i}^* &= - \phantom{\m{R}_i}      \left[\m{M}_{e x}'\v{a}_i' + \m{M}_{e \theta}'\v{\dot{\omega}}_i'  + \m{M}_{e  e} \v{\ddot{q}}_{e,i}   + \v{k}_{\omega,e }'     \right]
 \end{align}
 The external and elastic loads are:
 \begin{align}
-   \v{f}_{i} &= \m{R}_i\v{h}_x'\\
-   \v{\tau}_{i} &= \m{R}_i\v{h}_\theta'\\
-   \v{e}_{i} &=\v{h}_{e,e} - \v{k}_{e,e} 
+   \v{f}_{i} &= \m{R}_i\v{f}_x'\\
+   \v{\tau}_{i} &= \m{R}_i\v{f}_\theta'\\
+   \v{h}_{i} &=\v{f}_{e} - \v{k}_{e} 
 \end{align}
 The component of $\kanef_{ri}^*$ and $\kanef_{ri}$, for $r=1\cdots n_q$, are then defined as:
 \begin{align}
    \kanef_{ri}^* &= 
        \v{J}_{v,ri} \cdot \v{f}_i^*  + \v{J}_{\omega,ri} \cdot \v{\tau}_i^*
-     + \v{J}_{e,ri} \cdot \v{e}_i^*
+     + \v{J}_{e,ri} \cdot \v{h}_i^*
     \label{eq:frstarFlexible}
      \\
    \kanef_{ri} &= 
        \v{J}_{v,ri} \cdot \v{f}_i  + \v{J}_{\omega,ri} \cdot \v{\tau}_i
-     + \v{J}_{e,ri} \cdot \v{e}_i
+     + \v{J}_{e,ri} \cdot \v{h}_i
     \label{eq:frFlexible}
      \\
      \intertext{with}
@@ -364,7 +382,7 @@ The component of $\kanef_{ri}^*$ and $\kanef_{ri}$, for $r=1\cdots n_q$, are the
     \label{eq:Jacobians}
 \end{align}
 where $\v{v}_{O,i}$ is the velocity of the body with respect to the inertial frame.
-The term $\v{J}_{e,ri}$ is either $0$ or $1$, for a given $r$, because $\v{q}_{e,i}$ is a subset of $\v{q}$.
+The term $\v{J}_{e,ri}$ consists of $0$ and $1$ because $\v{q}_{e,i}$ is a subset of $\v{q}$.
 \autoref{eq:frstarFlexible} and \autoref{eq:frFlexible}, once evaluated for body $i$,
 are inserted in \autoref{eq:frfrstarMultiBody} to obtain the final equations of motion.
 
@@ -375,14 +393,14 @@ are inserted in \autoref{eq:frfrstarMultiBody} to obtain the final equations of 
 The $n_q$ equations of motion given in \autoref{eq:EOMfrfrstar} are gathered into a vertical vector $\v{\kanee}$.
 They are recast into the form:
 \begin{align}
-\v{\kanee}(\v{q}, \v{\dot{q}}, \v{\ddot{q}}, \v{u},t)  &= \v{\kanef}+\v{\kanef}^* = \v{Q}(\v{q}, \v{\dot{q}}, \v{u},t)  -\v{M}(\v{q})\v{\ddot{q}} =\v{0}
-            \intertext{or}
-    \v{M}(\v{q})\v{\ddot{q}} &= \v{Q}(\v{q}, \v{\dot{q}}, \v{u},t) 
+    \v{\kanee}(\v{q}, \v{\dot{q}}, \v{\ddot{q}}, \v{u},t)  &= \v{\kanef}+\v{\kanef}^* = \v{F}(\v{q}, \v{\dot{q}}, \v{u},t)  -\v{M}(\v{q})\v{\ddot{q}} =\v{0}
+\intertext{or}
+    \v{M}(\v{q})\v{\ddot{q}} &= \v{F}(\v{q}, \v{\dot{q}}, \v{u},t) 
         \label{eq:NonLinearEOM}
 \end{align}
-where $\m{M}=-\frac{\partial \v{\kanee}}{\partial \v{\ddot{q}}}$ is the system mass matrix, and $\v{Q}$ is the forcing term: the part of $\v{\kanee}$ that does not belong to the mass matrix.
+where $\m{M}=-\frac{\partial \v{\kanee}}{\partial \v{\ddot{q}}}$ is the system mass matrix, and $\v{F}$ is the forcing term vector, that is, the reminder terms of the equation ($\v{F}=\v{\kanee}+\m{M}\v{\ddot{q}})$.
     The vector $\v{u}$ is introduced to represent the time dependent inputs that are involved in the determination of the external loads. Both sides of the equations are also dependent on some parameters but this dependency is omitted to shorten notations.
-A stiffness and damping matrix may be obtained by computing the Jacobian of the equations of motion with respect to $\v{q}$ and $\v{\dot{q}}$ respectively.
+The stiffness and damping matrices may be obtained by computing the Jacobian of the equations of motion with respect to $\v{q}$ and $\v{\dot{q}}$ respectively.
 The non-linear equation given in \autoref{eq:NonLinearEOM} is easily integrated numerically, for instance by recasting the system into a first order system, or by using dedicated second order system time integrator.
 
 In various applications, a linear time invariant approximation of the system is desired.
@@ -406,7 +424,7 @@ The linearized equations about this operating point are obtained using a Taylor-
     ,\
 \m{Q}_0= \left.\frac{\partial \v{\kanee}}{\partial \v{u}}\right|_0
 \end{align}
-where $\m{M}_0$, $\m{C}_0$, $\m{K}_0$ are the linear mass, damping, and stiffness matrix, $\m{Q}_0$ is the linear forcing vector, $\delta$ indicate a small perturbation of the quantities, and $|_0$ indicates that the expressions are evaluated at the operating point.
+where $\m{M}_0$, $\m{C}_0$, $\m{K}_0$ are the linear mass, damping, and stiffness matrices, $\m{Q}_0$ is the linear forcing vector, $\delta$ indicate a small perturbation of the quantities, and $|_0$ indicates that the expressions are evaluated at the operating point.
 Examples of application of the linear equations of motion are: controller design, frequency domain analyses, stability analyses.
 
 
@@ -429,25 +447,26 @@ Examples of application of the linear equations of motion are: controller design
 \section{Implementation into a symbolic framework}
 \label{sec:implementation}
 % In this section we introduce two open-source symbolic calculation frameworks that implement the equations given in \autoref{sec:method}:  YAMS, implemented in Python, and CADyn, implemented in Maxima.
-In this section we discuss a Python open-source symbolic calculation framework that implement the equations given in \autoref{sec:method}. 
-A Maxima implementation is also available\weird{CADyn repo}.
+In this section we discuss a Python open-source symbolic calculation framework that implements the equations given in \autoref{sec:method}. 
+A Maxima implementation from the same authors is also available~\cite{CADynTurb}.
 % YAMS, implemented in Python, and CADyn, implemented in Maxima.
 % CADyn, was implemented by the second author
 % , in the language Maxima. The second one, YAMS, was implemented by the second author in Python. 
 % Both frameworks have tools to generate and use the so called SID format which was defined by \cite{Wallrapp:1994} to define inputs for rigid and flexible bodies. 
-% The results presented in \autoref{sec:applications} will use YAMS, and for this reason, more details will be provided for this framework.
+% The results presented in \autoref{sec:WEapplications} will use YAMS, and for this reason, more details will be provided for this framework.
 
 % \subsection{Python implementation - YAMS}
 The python library YAMS (Yet Another Multibody Solver) started as a numerical tool published in previous work \citep{branlard:2019flex}.
 The library is now supplemented with a symbolic module so that both numerical and symbolic calculations can be achieved.
-The implementation uses the python symbolic calculation package Sympy~\citep{sympy}. We leveraged the features present in the subpackage ``mechanics'', which contains all the tools necessary to compute kinematics: definition of frames and points, and determination of positions, velocities, and accelerations. The subpackage also contains an implementation of Kane's equations for rigid body (i.e. \autoref{sec:rigidbodies}). We were also inspired by the package PyDy~\cite{Gede:2013}, which is a convenient tool to export the equations of motion to executable code, and directly visualize the bodies in 3D. The core of our work consisted in implementing a class to define flexible bodies (\texttt{FlexibleBody}) and the corresponding Kane's method for this class (\autoref{sec:flexiblebodies}).  
+The new implementation uses the python symbolic calculation package SymPy~\citep{sympy}. We leveraged the features present in the subpackage ``mechanics'', which contains all the tools necessary to compute kinematics: definition of frames and points, and determination of positions, velocities, and accelerations. The subpackage also contains an implementation of Kane's equations for rigid body (i.e. \autoref{sec:rigidbodies}). We were also inspired by the package PyDy~\citep{Gede:2013}, which is a convenient tool to export the equations of motion to executable code, and directly visualize the bodies in 3D. The core of our work consisted in implementing a class to define flexible bodies (\texttt{FlexibleBody}) and the corresponding Kane's method for this class (\autoref{sec:flexiblebodies}).  
 
 For the \texttt{FlexibleBody} class, we followed the formalism of \cite{Wallrapp:1994}, and implemented Taylor expansions for all the terms defined in \autoref{sec:FlexibleDefinitions}, allowing the symbolic computation with shape functions of any order. The different Taylor coefficients may be kept as symbolic terms, or replaced early on by numerical values provided for instance by an SID. 
 
-The code consists of three layers. 1) The low-level layer integrates seamlessly with Sympy and PyDy, by using the \texttt{FlexibleBody} class we provide. It is the layer which offers the highest level of granularity and control for the user, since arbitrary systems with various kinematic constraints can be implemented, at the cost of requiring more expertise. 2) The second-level automates the calculation of the kinematics, by introducing simple connections between rigid and flexible bodies. The connections may be rigid, with constant offsets and rotations, or dynamic. Connection from a flexible body to another body is assumed to occur at one extremity of the flexible body. Some knowledge of sympy mechanics are still required to use this layer.
-3) The third level consists of predefined models: such as generic onshore or offshore wind turbine models. Degrees of freedom are easily turned on and off for these models depending on the level of fidelity asked by the user. The non-linear and linear equations of motion can be exported to latex and python-ready scripts. As little as three lines of code are required by the user to perform the full step from derivation of the equations, optional linearization, and exportation.
-To obtain numerical results from the exported python code, the user needs to provide the arrays with the degrees of freedom values $\v{q}$ and $\v{\dot{q}}$, a dictionary with inputs ($\v{u}$) that are function of time, and a dictionary of parameters ($\v{p}$) containing all the numerical constants such as mass, acceleration of gravity, etc.
-The source code is available on github \citep{YAMSgithub} together with tests and working examples, including the ones presented in \autoref{sec:applications}.
+We structured the code into three layers. 1) The low-level layer integrates seamlessly with SymPy and PyDy, by using the \texttt{FlexibleBody} class we provide. It is the layer which offers the highest level of granularity and control for the user, since arbitrary systems with various kinematic constraints can be implemented, at the cost of requiring more expertise. 2) The second-level automates the calculation of the kinematics, by introducing simple connections between rigid and flexible bodies. The connections may be rigid, with constant offsets and rotations, or dynamic. A connection from a flexible body to another body is assumed to occur at one extremity of the flexible body. Some knowledge of SymPy mechanics are still required to use this layer.
+3) The third level consists of template models such as generic onshore or offshore wind turbine models. Degrees of freedom are easily turned on and off for these models depending on the level of fidelity asked by the user and generic external forces can be implemented or declared as external inputs. The non-linear and linear equations of motion can be exported to latex and python-ready scripts for various applications (see \autoref{sec:Applications}). As little as three lines of code are required by the user to perform the full step from derivation of the equations, optional linearization, and exportation.
+To obtain numerical results from the exported python code, the user needs to provide the arrays with the degrees of freedom values $\v{q}$ and $\v{\dot{q}}$, their initial conditions,a dictionary with inputs ($\v{u}$) that are function of time, and a dictionary of parameters ($\v{p}$) containing all the numerical constants such as mass, acceleration of gravity, etc. We provide tools to readily time-integrate the generated model using numerical values (including initial values) from a set of OpenFAST input files.
+
+The source code of YAMS is available on github as a subpackage of the Wind Energy LIBrary, WELIB~\citep{WELIBgithub}. The repository contains tests and working examples, including the ones presented in \autoref{sec:WEapplications}. The finite element package of the repository can be used to generate the SID from beam models such as the ones used for blades and tower.
 
 
 % \subsection{Maxima implementation}
@@ -467,13 +486,13 @@ The source code is available on github \citep{YAMSgithub} together with tests an
 % --- Applications 
 % --------------------------------------------------------------------------------{
 \section{Wind energy applications}
-\label{sec:applications}
+\label{sec:WEapplications}
 
 \subsection{Approach}
-In this section we provide different wind energy applications of the symbolic framework. 
-We focus on models with at least one flexible body since the rigid-body formulation of sympy has been well verified~\citep{Gede:2013}.
+In this section we present different wind energy applications of the symbolic framework. 
+We focus on models with at least one flexible body since the rigid-body formulation of SymPy has been well verified~\citep{Gede:2013}.
 For each example, the equations of motion are given and their results are compared with OpenFAST~\citep{openfast} simulations. This is readily achieved because our framework can export the equations of motion to python functions, load input files from an OpenFAST model, and integrate the generated equations using the same conditions as defined in the OpenFAST input files. 
-In this article, we do not focus on the modelling of the external loads but we include them in the equations of motion. It is the responsibility of the user to define these functions. For the verification results presented in this section we only include the gravitational and inertial loading. In all examples, the NREL 5-MW reference wind turbine~\citep{nrel5mw} is used. The examples below are provided on the github repository of YAMS~\citep{YAMSgithub}.
+In this article, we do not focus on the modelling of the external loads but we include them in the equations of motion. It is the responsibility of the user to define these functions, for instance through aero- or hydro-force models. For the verification results presented in this section we only include the gravitational and inertial loading. In all examples, the NREL 5-MW reference wind turbine~\citep{nrel5mw} is used. The examples below are provided on the github repository where the YAMS package is provided~\citep{WELIBgithub}.
 
 \subsection{Notations}
 We adopt a system of notations where the first letter of a body is used to identify the parameters of this body. As an example, the tower is represented with the letter T, and the following body parameters are defined: $T$, origin; $M_T$, mass; $L_T$, length; $(J_{x,T}, J_{y,T}, J_{z,T})$, diagonal coefficients of the inertia tensor about the center of gravity and in body-coordinates; $\v{r}_{TG}$, vector from body origin to body center of mass, of coordinates $(x_{TG},y_{TG},z_{TG})$ in body-coordinates. 
@@ -485,10 +504,10 @@ We also define: $\theta_t$, the nacelle tilt angle about the $y$ axis; $g$ the a
 
 \subsection{Rotating blade with centrifugal stiffening}
 \label{sec:RotatingBlade}
-We begin with the study of a flexible blade of length $R$, rotating at the constant rotational speed $\Omega$.
+We begin with the study of a flexible blade of length $L_B=R$, rotating at the constant rotational speed $\Omega$.
 We use this test case to familiarize the reader with the key concepts of the shape function approach given in \autoref{sec:ShapeFunctionApproachBeam}. 
 A sketch of the system is given in \autoref{fig:DynamicsWT1DOF_Blade}.
-We start by modelling the blade using a single shape function, assumed to be directed along the $x$ axis (``flapwise''): $\v{\Phi}_1=\Phi \v{\hat{x}}$.
+We start by modelling the blade using a single shape function, assumed to be directed along the $x$ axis (``flapwise''): $\v{\Phi}_1=\Phi \v{\hat{x}}$, where the hat notation indicates the unit vector in the $x$ direction.
 % The model can similarly be applied to the edgewise direction and be extended to multiple shape functions containing both flap and edge components (see \cite{branlard:2019flex}).
 % --------------------------------------------------------------------------------
 \begin{figure}[!htb]
@@ -505,21 +524,21 @@ The undeflected blade is directed along the radial coordinate $r$, and rotates a
 % We assume that the blade the radial coordinate $r$
 We assume that the shape function is known, noted $\Phi(r)$. 
 It can be computed as the first flapwise mode of the blade, using tools provided in YAMS. The expression $\Phi(r)=r^3$ is a simple approximation that can be used for hand calculations. 
-The aerodynamic loading in the flapwise direction is noted $p_x(r)$.
+The aerodynamic force per length in the flapwise direction is noted $p_x(r)$.
 % Once a shape function is assumed, the expressions for $M$ and $K$ are directly computed based on the distributed properties of the blade ($EI$ and $m$).
 % The loading $p(r)$ is either the aerodynamic load in the flapwise direction, or the aerodynamic load in the edgewise direction (combined with gravitational loads). 
 The generalized mass and stiffness are computed based on the mass per length ($m$) and flapwise bending stiffness ($EI_y$) of the blade, according to \autoref{eq:MassMatrixRRBeam}:
 \begin{align}
-  M_{e}&=\int_0^{L_T} m(r) \Phi^2(r)\, dr
+  M_{e}&=\int_0^{R} m(r) \Phi^2(r)\, dr
   \label{eq:MeBlade}
       \\
 %       ,\quad
-  K_{e}&=\int_0^{L_T} EI_y(r) \left[\frac{d^2\Phi}{dr^2}(r)\right]^2\, dr
+  K_{e}&=\int_0^{R} EI_y(r) \left[\frac{d^2\Phi}{dr^2}(r)\right]^2\, dr
   \label{eq:KeBlade}
 \end{align}
 The generalized force is obtained from \autoref{eq:GenQBeam}:
 \begin{align}
-  f_{e}=\int_0^{L_T} p_x(r,t)\Phi(r)\, dr 
+  f_{e}=\int_0^{R} p_x(r,t)\Phi(r)\, dr 
 \end{align}
 
 
@@ -546,13 +565,16 @@ The natural frequency of the blade will increase with the rotational speed as fo
    = \sqrt{ \omega_0^2(0) + \frac{K_g(\Omega)}{M_e} } 
    = \sqrt{ \omega_0^2(0) +  k_\Omega \Omega^2 } 
 \end{align}
-where $k_\Omega=K_g(\Omega)/M_e/\Omega^2$ is a constant that depends only on the blade property.
-The variation of the blade frequency with rotational speed is something that is observed on a Campbell diagram when performing stability analyses.
-The mode shapes of the blade will also change as function of the rotational speed, and different shape functions should preferably be used for simulations at different rotational speed. The effect is fairly limited, and most OpenFAST practitioners only use one shape function corresponding to the rated rotational speed.
+where $k_\Omega$ is referred to as the rise factor, or Southwell coefficient, and in our approximation, it is found to be constant: $k_\Omega=K_g(\Omega)/M_e/\Omega^2$.
+The coefficient provides the variation of the blade frequency with rotational speed, which is something that is observed on a Campbell diagram when performing stability analyses.
+In general, the mode shapes of the blade will also change as function of the rotational speed, and different shape functions should preferably be used for simulations at different rotational speed. The effect is fairly limited, and most OpenFAST practitioners only use one shape function corresponding to the value at rated rotational speed.
+Similarly, the Southwell coefficient is a function of the rotational speed, but the variations is negligible as long as the rotational speed is small compared to the natural frequency (e.g., $(\Omega/\omega)^2 \lesssim 5$, see \cite{bielawa:2006:book}), which is the case for wind energy applications.
+%     is the , a variable that depends on the blade property.
 
-The treatment of a shape function in the edgewise direction is similar, using $\v{\Phi}_2=\Phi_2 \v{\hat{\theta}}$. In this case, the centrifugal force also has a component in the tangential direction equal to $p_{\theta,\text{centri}}(r) = -\Omega^2u_\theta(r) dm(r)$, with $u_\theta=\Phi_2 q$. This leads to a generalized force equal to $\int_0^L p_{\theta,\text{centri}} \Phi_2=-\Omega^2 M_{e} q$, or equivalently, to a stiffness term: $K_{\omega}=-\Omega^2 M_{e}$. It can be verified that this generalized force corresponds to the contribution $O_{e,11}\omega_x^2$, from $\v{k}_{\omega,e}$, given in \autoref{eq:komegae}. For an edgewise mode, the frequency therefore evolves as: 
+
+The treatment for a shape function in the edgewise direction is similar, using $\v{\Phi}_2=\Phi_2 \v{\hat{\theta}}$. In this case, the centrifugal force also has a component in the tangential direction equal to $p_{\theta,\text{centri}}(r) = -\Omega^2u_\theta(r) dm(r)$, with $u_\theta=\Phi_2 q$. This leads to a generalized force equal to $\int_0^L p_{\theta,\text{centri}} dr \Phi_2=-\Omega^2 M_{e} q$, or equivalently, to a stiffness term: $K_{\omega}=-\Omega^2 M_{e}$. It can be verified that this generalized force corresponds to the contribution $O_{e,11}\omega_x^2$, from $\v{k}_{\omega,e}$, given in \autoref{eq:komegae}. For an edgewise mode, the frequency therefore evolves as: 
 \begin{align}
- \omega_0(\Omega)=\sqrt{\frac{(K_{e}+ K_g+K_\omega)}{M_e}}=\sqrt{\omega_0^2(0)+(k_\Omega-1)\Omega^2}
+ \omega_0(\Omega)=\sqrt{\frac{(K_{e}+ K_g(\Omega)+K_\omega(\Omega))}{M_e}}=\sqrt{\omega_0^2(0)+(k_\Omega-1)\Omega^2}
 \end{align}
  with $k_\Omega=K_g(\Omega)/M_e/\Omega^2$ and with $K_g$ computed using \autoref{eq:GeomStiffCentri}.
 
@@ -566,7 +588,7 @@ The coefficients $k_\Omega$ of each degrees of freedom are obtained as: $\v{k}_\
 % From script: CentrifugalStiffning.py, folder: C:\W0\Work\2018-NREL\Atlantis\yams_code, 2021/05/06
 \noindent\begin{figure}[!htb]\centering%
   \includegraphics[width=0.48\textwidth]{figs/FrequencyCentrifugalStiffening.pdf}
-  \caption{Variation of the natural frequencies of the NREL5-MW blade with rotational speed. Results from YAMS and OpenFAST}\label{fig:FrequencyCentrifugalStiffening}%
+  \caption{Variation of the natural frequencies of the NREL5-MW blade with rotational speed. Results from YAMS and OpenFAST, with mean relative error, $\epsilon$, reported on the figure.}\label{fig:FrequencyCentrifugalStiffening}%
 \end{figure}
 % --------------------------------------------------------------------------------
 Strong agreement is found for the evolution of the different frequencies with the rotational speed. The stiffening is less pronounced for edgewise modes due to the softening introduced by $K_\omega$.
@@ -595,18 +617,18 @@ A sketch of the system is given in \autoref{fig:Onshore3DOF}.
  \caption{Model of an onshore or fixed-bottom wind turbine using 1 to 3 degrees of freedom (fore-aft and side-side flexibility of the support structure, and shaft rotation). Points are indicated in green, degrees of freedom in blue, and loads in orange.}\label{fig:Onshore3DOF}%
  \end{figure}%
 %--------------------------------------------------------------------------------
-The nacelle and rotors are rigid bodies, whereas the tower is flexible and represented by one shape function\footnote{
-It is recalled that the relevant equations of the shape function approach for a beam are given in \autoref{sec:ShapeFunctionApproachBeam}.} in the fore-aft direction, noted $\v{\Phi}_1=\Phi_1 \v{\hat{x}}$.
+The nacelle and rotor blades are rigid bodies, whereas the tower is flexible and represented by one shape function\footnote{
+The relevant equations of the shape function approach for a beam are given in \autoref{sec:ShapeFunctionApproachBeam}.} in the fore-aft direction, noted $\v{\Phi}_1=\Phi_1 \v{\hat{x}}$.
 %     $\Phi(z) = 1 − \cos(z\pi/L/2)$
-As a first approximation, the first mode shape of a massless beam with a top-mass may be used: $\Phi_1(z)=1-\cos(z\pi/L/2)$. Increased accuracy is obtained when the shape function matches the actual first tower fore-aft bending mode including the effect of the rotor-nacelle mass and inertia.
+For hand calculations and as a first approximation, the first mode shape of a massless beam with a top-mass may be used: $\Phi_1(z)=1-\cos(z\pi/L/2)$. Increased accuracy is obtained when the shape function matches the actual first tower fore-aft bending mode accounting for the effect of the rotor-nacelle mass and inertia.
     The degrees of freedom are $\v{q}=(q, \psi)$, where $q$ is the generalized (elastic) coordinates in the fore-aft direction and $\psi$ is the azimuthal position.
-The slope of the tower shape function at the tower top is a key coupling parameter of the model, noted  $\nu_y$. When the tower deflects 1m in the $x$ direction, the nacelle rotates by an angle $\nu_y$.
-The methods assumes that the tower-top point remains along the $x$ axis, neglecting the so-called non-linear geometrical effect. Yet, non-linear geometrical effects can be included using geometrical stiffening corrections~\cite{branlard:2019flex}.
-The aerodynamic thrust and torque are noted $f_a$, $\tau_a$, acting at point $R$. The low-speed shaft generator torque is written $\tau_g$. The distributed loads on the tower, $p_x$ (from aero- and hydrodynamics), are projected against the shape function to obtain the generalized forces: 
+The slope of the tower shape function at the tower top is a key coupling parameter of the model, noted  $\nu_y$. When the tower deflects 1 \unit{m} in the $x$ direction, the nacelle rotates by an angle $\nu_y$.
+The methods assumes that the tower-top point remains along the $x$ axis, neglecting the so-called non-linear geometrical effect. Yet, non-linear geometrical effects can be included using geometrical stiffening corrections~\citep{branlard:2019flex}.
+The aerodynamic thrust and torque are noted $f_a$, $\tau_a$, acting at the rotor center (point $R$). The low-speed shaft generator torque is written $\tau_g$. The distributed loads on the tower, $p_x$ (from aero- and hydrodynamics), are projected against the shape function to obtain the generalized forces: 
 % \begin{align}
-  $f_e=\int_0^{L_T} p_x(z,t)\Phi_1(z) dz $
+  $f_e=\int_0^{L_T} p_x(z,t)\Phi_1(z) dz $.
 % \end{align}
-The inertia of the rotor in its coordinates are $(J_{x,R}, J_{O,R}, J_{O,R})$. We note $M_e, K_e, D_e$  the generalized mass, stiffness and damping associated with a given shape function:
+The moments of inertia of the rotor in its coordinates are $(J_{x,R}, J_{\oplus,R}, J_{\oplus,R})$. We note $M_e, K_e, D_e$  the generalized mass, stiffness and damping associated with a given shape function:
 % \begin{align}
 $M_e=\int_0^{L_T} m(z) \Phi_1^2(z) dz$
     ,
@@ -630,7 +652,7 @@ The shape function frequency is obtained as:
     \omega_e = \sqrt{(K_e+K_g)/M_e}
 \end{align}
 % More details on the shape function approach and geometrical stiffening for beams can be found in previous work~\citep{branlard:2019flex}. 
-The application of the symbolic framework leads to the following equations of motion:
+The application of the symbolic framework leads to the following equations of motion (rearranged for interpretability):
 \begin{align}
     \begin{bmatrix}
     M_q & 0 \\ 
@@ -650,7 +672,7 @@ The application of the symbolic framework leads to the following equations of mo
 where:
 \begin{align}
 M_q = & M_{e} +  M_N + M_R \label{eq:Mq1}\\
-     &+ (J_{y N} + J_{O,R} + M_N(x_{NG}^{2} + z_{NG}^{2}) + M_R(x_{NR}^{2} + z_{NR}^{2}) ) \nu_y^{2}  \label{eq:Mq2}\\
+     &+ (J_{y N} + J_{\oplus,R} + M_N(x_{NG}^{2} + z_{NG}^{2}) + M_R(x_{NR}^{2} + z_{NR}^{2}) ) \nu_y^{2}  \label{eq:Mq2}\\
      &+2  \left[   (M_N z_{NG} + M_R z_{NR}) \cos{\left(\nu_y q \right)} -(M_N x_{NG} + M_{R} x_{NR})\sin{\left(\nu_y q \right)} \right] \nu_y\label{eq:Mq3}
 \end{align}
 and
@@ -676,7 +698,7 @@ The forcing terms are identified as follows:
 \autoref{eq:Fq3} is the centrifugal force of the RNA (``$M \omega^2 r$'' with $\omega=\nu_y \dot{q}$);
 \autoref{eq:Fq4} is the generalized torque from the aerodynamic thrust and  
 \autoref{eq:Fq5} is the thrust contribution acting directly along the direction of the shape function degree of freedom (along $x$).
-The RNA center of mass appears in the equations since the nacelle and rotor were assumed to be rigid bodies (see the terms $(M_N x_{NG}+M_R x_{NR})$ and $(M_N z_{NG}+M_R z_{NR})$). 
+The RNA center of mass plays an important part in the equations (see the terms $(M_N x_{NG}+M_R x_{NR})$ and $(M_N z_{NG}+M_R z_{NR})$). 
 
 The equations of motion given in \autoref{eq:EOM2DOF} can be used to perform time domain simulations of a wind turbine. It is noted that the two degrees of freedom are only coupled by the aerodynamic loads. The non-linear model was used in previous work for time domain simulations and its linear version was used for state estimations~\citep{Branlard:2020twin,Branlard:2020twinOF}. In this section, we apply the linearized form to compute the natural frequency of the turbine tower fore-aft mode.
 The linearized stiffness is here obtained by taking the gradient of the forcing with respect to $q$, and using a small angle approximation for $\nu_y$ to the second order:
@@ -694,10 +716,10 @@ $L_T=87.6$ \unit{m},
 $z_{NG}=1.75$ \unit{m},
 $x_{NG}=1.9$ \unit{m},
 $M_R= 1.1e5$ \unit{kg},
-$J_{x,R}=3.86e7$ \unit{kg.m}$^2$,
-$J_{O,R}=1.92e7$ \unit{kg.m}$^2$,
+$J_{x,R}=3.86e7$ \unit{kg\,m}$^2$,
+$J_{\oplus,R}=1.92e7$ \unit{kg\,m}$^2$,
 $M_N=2.4e5$ \unit{kg},
-$J_{y,N} =1.01e6$ \unit{kg.m}$^2$,
+$J_{y,N} =1.01e6$ \unit{kg\,m}$^2$,
 $M_{RNA}=3.5e5$ \unit{kg}.
 The first fore-aft shape function of the NREL-5MW turbine tower, and its derivatives are:
 \begin{align}
@@ -744,7 +766,7 @@ the tower is now represented by one shape function in both the fore-aft and side
 % We consider a system of three bodies: tower (or support structure), nacelle and rotor. The system represents an onshore wind turbine or a fixed-bottom offshore wind turbine. The nacelle and rotors are rigid bodies, whereas the tower is flexible and represented by one shape function in both the fore-aft and side-side directions, $\Phi_1$ and $\Phi_2$. The degrees of freedom are $\v{q}=(q_1, q_2, \psi)$, where $q_1$ and $q_2$ are the generalized (elastic) coordinates in the fore-aft and side-side directions respectively, and $\psi$ is the rotor azimuth. A sketch of the system is given in \autoref{fig:Onshore3DOF}. 
 The slopes of the shape functions at the tower top are key coupling parameters of the model, noted $\nu_x$ and $\nu_y$. 
 The aerodynamic thrust and torque are noted $f_a$, $\tau_a$, acting at point $R$. The distributed loads on the tower, $p_x$ and $p_y$ (from aero- and hydrodynamics), are projected against the shape functions to obtain the generalized forces $f_{e1}=\int \Phi_1 p_x dz$ and  $f_{e2}=\int \Phi_2 p_y dz$. 
-The inertia of the rotor in its coordinates are $(J_{x,R}, J_{O,R}, J_{O,R})$. We note $\m{M}_e, \m{K}_e, \m{D}_e$  the generalized mass, stiffness and damping associated with a given shape function (e.g. $M_{e11}=\int \Phi_1^2 m(z) dz$, with $m$ the mass per length of the tower). 
+The moments of inertia of the rotor in its coordinates are $(J_{x,R}, J_{\oplus,R}, J_{\oplus,R})$. We note $\m{M}_e, \m{K}_e, \m{D}_e$  the generalized mass, stiffness and damping associated with a given shape function (e.g. $M_{e11}=\int \Phi_1^2 m(z) dz$, with $m$ the mass per length of the tower). 
 % More details on the shape function approach can be found in previous work~\citep{branlard:2019flex}. 
 The application of the symbolic framework leads to the equations of motion given in Section \ref{sec:Onshore3DOFEq}.
 To simplify the equations and limit their length when printing them in this article, we have applied a first-order small angle approximation for $\theta_t$, and second order for $\nu_x$ and $\nu_y$.
@@ -761,7 +783,7 @@ We compare the time series obtained using our generated functions with results f
 % --------------------------------------------------------------------------------
 We report the mean relative error, $\epsilon$, and the coefficient of determination $R^2$ on the figure.
 We observe that our model is in strong agreement with the OpenFAST simulation. The differences in the second tower degree of freedom are attributed to: 1) the handling of the small angle approximation which is different in OpenFAST (using the closest orthonormal matrix, \cite{Jonkman:2009}) and in our formulation (two successive rotations, linearized); 2) the non-linear geometric corrections that are implemented in OpenFAST and which we have here omitted by only selecting shape function expansion to the first order (see \autoref{sec:AdvancedConsiderations}). 
-The variation in azimuthal speed, resulting from the coupling with the gyroscopic loads and the tower bending, is well captured. 
+The variation in azimuthal speed, resulting from the coupling between the gyroscopic loads and the tower bending, is well captured. 
 
 
 
@@ -800,11 +822,11 @@ The results are presented in \autoref{fig:F2T1RNASim}.
 We observe again that the results from the two models correlate to a high degree.
 
 We also compared the linearized version of both models. The symbolic framework can generate the linearized mass, stiffness and damping matrices as described in \autoref{sec:linearization}.
-The matrices are then combined into a state matrix and compared with the state matrices written by the OpenFAST linearization feature. The eigenvalue analysis of the YAMS state matrix returned a pitch and fore-aft frequencies of $0.099$ \unit{Hz} and $0.799$ \unit{Hz} respectively, whereas OpenFAST returned $0.095$ \unit{Hz} and $0.795$ \unit{Hz}. The $4\%$ error in the pitch frequency appears reasonable in view of the approximation used.
+The matrices are then combined into a state matrix and compared with the state matrices written by the OpenFAST linearization feature. The eigenvalue analysis of the YAMS state matrix returned a pitch and fore-aft frequencies of $0.099$ \unit{Hz} and $0.799$ \unit{Hz} respectively, whereas OpenFAST returned $0.095$ \unit{Hz} and $0.795$ \unit{Hz}. The $4\%$ error in the pitch frequency appears reasonable in view of the approximations used.
 
 
-\subsection{Model with blade flexibility}
-\weird{TODO, if I have time or for the revision of the paper}
+% \subsection{Model with blade flexibility}
+% \weird{TODO, if I have time or for the revision of the paper}
 
 
 % \subsection{Many DOFs}
@@ -824,11 +846,26 @@ The implementation of the symbolic YAMS library was originally motivated by the 
 The potential applications of the framework are yet multiple:
 \begin{itemize}
 \item The generated equations can be used in time-domain simulation tools. The equations can be readily 
-  and to different programming languages, such as C, Fortran or Python,  providing computationally efficient tools.  In our examples, time-domain simulations were observed to be two orders of magnitude faster when using the automatically generated code in Python compared to OpenFAST simulations that rely on a compiled-language. Dedicated code can be generated for specific applications for increased performances.
+exported to different programming languages (C, Fortran or Python)  providing computationally efficient tools, particularly because the method generates compact, and minimal equations. This is in contrast to most other multibody codes where many terms are calculated as matrix equations and through successive function calls. Further, the symbolic framework allows to generate optimized code, where common terms and factors are computed once and stored in temporary variables for reuse in the different expressions.
+%
+In our examples, time-domain simulations were observed to be two orders of magnitude faster when using the automatically generated code in Python compared to OpenFAST simulations that rely on a compiled-language. 
+%
+Using such a framework can be considered in the future to replace the existing ElastoDyn module of OpenFAST. It can also be applied to unusual configurations such as multi-rotor or some vertical axis turbine concepts. 
+%
+Dedicated code can be generated for specific applications for increased performances. For instance, implicit integrator with iterative Newton-Raphson-like solvers benefit from the possibility to generate exact and efficient Jacobians along with the equations of motion.
+
+% For complex expressions this is usually much more that modern compilers can do. A similar approach can factor out subexpressions that consist of only parameters. These subexpressions can be precomputed leading to even better run-time performance.
+
+
+
+
 %     \item The wall time is two order of magnitude faster despite using Python
 \item The generation of linearized models have a wide range of applications, such as: linear time-domain simulations, controller design and tuning, frequency domain analyses, stability analyses, state observers or digital twins.
-The symbolic approach is severalfold faster than alternative approaches because it can be evaluated for all operating points at once, whereas other methods (e.g. OpenFAST, HawcStab2) require multiple linearization calls. Linearization with respect to parameters can also be performed, making the method even more appealing.
-\item Analytical gradients of the equations can be computed and used in optimizations. External loads that cannot be expressed analytically can be defined as generic functions of the structural degrees of freedom, inputs, and parameters. After the code generation, the user can link a numerical implementation of the function and its numerical gradients to be able to use a mix of analytical and numerical gradients.
+The symbolic approach is severalfold faster than alternative approaches because it can be evaluated for all operating points at once, whereas other methods (e.g. OpenFAST, HawcStab2) require multiple linearization calls. Linearization with respect to parameters can also be performed, making the method even more appealing, e.g. for controller designs based on linear parameter varying approaches such as linear matrix-inequality based designs \citep{Poschke:2020}.
+
+
+\item Analytical gradients of the equations can be computed and used in optimizations,
+nonlinear model predictive control or moving horizon estimation. External loads that cannot be expressed analytically can be defined as generic functions of the structural degrees of freedom, inputs, and parameters. After the code generation, the user can link a numerical implementation of the function and its numerical gradients to be able to use a mix of analytical and numerical gradients.
 % \item 
 %  generation of dedicated code (for standalone simulations, state observers or digital twins). 
 % Further processing by specialized tools, e.g. for the generation of high performance NMPC code
@@ -839,7 +876,7 @@ The symbolic approach is severalfold faster than alternative approaches because 
 \subsection{Advantage of using a symbolic framework}
 \label{sec:Advantages}
 Most advantages have already been discussed in \autoref{sec:Applications}, namely: the wide range of applications and the potential gain in computational time.
-The method can be used as an educational tool, since simple models of a system with few degrees of freedom can readily be obtained, studied, and compared to hand-based calculation.
+Additionally, the method can provide useful insights and be used as an educational tool: simple models of a system with few degrees of freedom can readily be obtained, studied, and compared to hand-based calculation.
 
 % \begin{itemize}
 %     \item linearization, evaluations
@@ -851,18 +888,29 @@ The method can be used as an educational tool, since simple models of a system w
 \subsection{Advanced consideration}
 \label{sec:AdvancedConsiderations}
 
-\autoref{sec:method} addressed the systematic derivation of the equations of motion for an assembly of rigid or flexible bodies. Some advanced aspects of the method were not presented.
-First, the expression of the displacement field $\v{u}$ in terms of a superposition of shape function
+Section \ref{sec:method} addressed the systematic derivation of the equations of motion for an assembly of rigid or flexible bodies. Some advanced aspects of the method are discussed here:
+\begin{itemize}
+    \item The expression of the displacement field $\v{u}$ in terms of a superposition of shape function
 is typically done using a first or second order expansion.
 We discuss these formulations in \autoref{sec:AlternativeFormulations}.
-Our framework support both approaches: it is the responsibility of the user to provide the terms and values of the expansion when numerical evaluation is to occur. The advantage of the second-order expansion is that some geometrical non-linearities are directly accounted for by the method, whereas these non-linearities need to be introduced ``manually'' in the first-order expansion approach, as done in \cite{branlard:2019flex}. 
-Second, the definition of geometric stiffening requires attention in the general case. It is accounted for by the term $\v{k}_\sigma$ presented in \autoref{sec:FlexibleDefinitions}. A general account of the effect for an arbitrary geometry can be found in \cite{Wallrapp:1991} and simplified expressions are given for beams in \autoref{sec:ShapeFunctionApproachBeam}.
-Last, the treatment of external loads were not addressed in details in this paper because the loads are application specific (aerodynamics, hydrodynamics, etc.). The framework can accept external loads as arbitrary functions of multiple variables, or as analytical expressions. In the former case, the user will have to provide an implementation of the function during the execution.
+Our framework supports both approaches: it is the responsibility of the user to provide the terms and values of the expansion when numerical evaluation is to occur. The advantage of the second-order expansion is that some geometrical non-linearities are directly accounted for by the method, whereas these non-linearities need to be introduced ``manually'' in the first-order expansion approach, as done in \cite{branlard:2019flex}. 
+
+    \item The definition of geometric stiffening requires attention in the general case. It is accounted for by the term $\v{k}_\sigma$ presented in \autoref{sec:FlexibleDefinitions}. A general account of the effect for an arbitrary geometry can be found in \cite{Wallrapp:1991} and simplified expressions are given for beams in \autoref{sec:ShapeFunctionApproachBeam}.
+
+    \item The treatment of external loads was not addressed in details in this paper because the loads are application specific (aerodynamics, hydrodynamics, etc.). The framework can accept external loads as arbitrary functions of multiple variables, or as analytical expressions. In the former case, the user will have to provide an implementation of the function during the execution.
+
+    \item Even though the equations of motion are void of constraint forces, the values of these forces can be recovered. They can be expressed as function of the external forces and the states of the system. It is not necessary to compute them by iteratively solving constraint equations.
+
+    \item The framework can easy include rheonomous constraints, e.g. for the pitch angle, without having to supply a dedicated torque. Pitch speed and accelerations can be directly introduced into the mechanical system if they are provided e.g. by a generic second order pitch actuator model
+\end{itemize}
+
+
+
 
 \subsection{Limitations}
 In spite of the advantages listed in \autoref{sec:Advantages}, the symbolic procedure presented in this work has some potential limitations. We are identifying two in this section.
-First, constraints and closed loops have currently not been added to the framework. The sympy mechanics package supports the additional constraint equations within the Kane method. It is therefore hoped that this current limitation can be lifted in the future.
-Second, large problems may challenge a symbolic calculation package: memory impact, calculation time, simplification times, and size of expressions may become significant. Some of these issues may be alleviated by introducing intermediate variables that are only substituted for in the numerical implementation.
+First, constraints and closed loops have currently not been added to the framework. The SymPy mechanics package supports additional constraint equations within the Kane method. It is therefore hoped that this current limitation can be lifted in the future.
+Second, large problems may challenge a symbolic calculation package: memory impact, calculation time, simplification times, and size of expressions may become significant. Some of these issues may be alleviated by introducing intermediate variables that are only substituted for in the numerical implementation or by using a recursive formulation of the solution procedure~\citep{branlard:2019flex}.
 % Third, the method of minimal coordinates leads to compact and highly non-linear equations of motion.
 
 
@@ -872,7 +920,7 @@ Second, large problems may challenge a symbolic calculation package: memory impa
 % --------------------------------------------------------------------------------{
 \conclusions
 
-We presented a symbolic framework to obtain the linear and non-linear equations of motion of a multibody system made of rigid bodies, flexible bodies and kinematic joints. Our approach is based on Kane's method and a nonlinear shape function representation of flexible bodies. We provided different wind energy examples and verified the results against OpenFAST simulations. The advantages of the framework is that it can readily provide models suitable to a wide range of applications, with competitive computational times.
+We presented a symbolic framework to obtain the linear and non-linear equations of motion of a multibody system made of rigid bodies, flexible bodies and kinematic joints. Our approach is based on Kane's method and a nonlinear shape function representation of flexible bodies. We provided different wind energy examples and verified the results against OpenFAST simulations. The framework can readily provide models suitable to a wide range of applications, with competitive computational times.
 The framework is opensource and the examples presented are available in the repository.
 Future work will focus on applying the framework to dedicated research projects, with more complex systems, and potentially extend the framework to account for closed-loop systems and arbitrary constraints.
 
@@ -882,9 +930,7 @@ Future work will focus on applying the framework to dedicated research projects,
 
 
 \authorcontribution{
-% E. Branlard wrote the main corpus of this paper, and the implementation of YAMS.
-% J. Geisler wrote \weird{CADyn}.
-}
+Both authors exchanged over the last two years on the implementation of such framework and its application to wind energy.  E. Branlard wrote a Python implementation and J. Geisler wrote a Maxima implementation.  E. Branlard wrote the main corpus of the paper, with feedback and contributions from J. Geisler.}
 
 \competinginterests{No competing interests are present.} %% this section is mandatory even if you declare that no competing interests are present
 
@@ -904,13 +950,14 @@ Future work will focus on applying the framework to dedicated research projects,
 \section{Equations for a flexible body and shape integrals}
 \label{sec:FlexibleDefinitions}
 % \subsection{General equations}
-In this section we detail the equations of motion of a flexible body. 
-The reader is referred to the following references for a complete treatment of the equations of motion: \cite{shabana:book},\cite{Schwertassek:book}, \cite{Wallrapp:1994}.
+In this section, we detail the equations of motion of a flexible body. 
+The reader is referred to the following references for a complete treatment of the equations of motion: \cite{shabana:book}, \cite{Schwertassek:book} and \cite{Wallrapp:1994}.
 % 
-    The different terms involved can be expressed as a linear superposition of constant terms, referred to as shape integrals, and time-dependent variables that are function of the degrees of freedoms.
-The shape integrals can be numerically evaluated for beams and beam-based finite-element-models using the tools provided by our framework and gathered into the SID format defined by Wallrapp~\cite{Wallrapp:1993}.
-
-
+% TODO TODO
+%     The different terms involved can be expressed as a linear superposition of constant terms, referred to as shape integrals, and time-dependent variables that are function of the degrees of freedoms.
+% The shape integrals can be numerically evaluated for beams and beam-based finite-element-models using the tools provided by our framework and gathered into the SID format defined by Wallrapp~\cite{Wallrapp:1993}.
+% 
+% 
 The subscript $i$ indicating the body index is dropped. The number of flexible shape functions associated with the body is $n_e$, the flexible degrees of freedom are $\v{q}_e$, and the shape functions are gathered into a matrix $\m{\Phi}$ of size $(3\times n_e)$. Primes are used to indicate that quantities are expressed in the body frame of reference. The equations of motion, given in \autoref{eq:EOMFlexibleBody}, are repeated below:
 \begin{align}
     \begin{bmatrix}
@@ -933,13 +980,13 @@ The subscript $i$ indicating the body index is dropped. The number of flexible s
     \begin{bmatrix}
       0 \\
       0 \\
-      \v{k}_{e,e}\\
+      \v{k}_{e}\\
     \end{bmatrix}_i
       =
     \begin{bmatrix}
-      \v{h}_{x}' \\
-      \v{h}_{\theta}' \\
-      \v{h}_{e,e}\\
+      \v{f}_{x}' \\
+      \v{f}_{\theta}' \\
+      \v{f}_{e}\\
     \end{bmatrix}_i
     \label{eq:EOMFlexibleBodyRepeated}
 \end{align}
@@ -949,7 +996,7 @@ The different terms of the mass matrix are obtained as follows:
        \\
    \M_{x\theta}'      & = -\int \stil_P' \,\dm          = -M \m{\tilde{s}}_{CM}'    \qquad (3\times3)
        \\
-   \M_{\theta\theta}' & = -\int \stil_P' \stil_P' \,\dm    \qquad (3\times 3)
+   \M_{\theta\theta}' & = -\int \stil_P' \stil_P' \,\dm = \v{J}   \qquad (3\times 3) 
    \\
    \M_{\theta e}'     & =  \int \stil_P' \m{\Phi}' \,\dm=\m{C}_r^T  \qquad (3\times n_e)
    \\
@@ -958,10 +1005,10 @@ The different terms of the mass matrix are obtained as follows:
    \M_{e e}'          & =  \int {\m{\Phi}'}^T \m{\Phi}' \,\dm  \qquad (n_e \times n_e)
     \label{eq:MMFlexible}
 \end{align}
-The notation $[\tilde{\ \ }]$ represents the skew symmetric matrix. $M$ is the mass of the body. 
+The integrals are understood as volume integrals over the volume of the body (for beams they reduce to line integrals). The notation $[\tilde{\ \ }]$ represents the skew symmetric matrix. $M$ is the mass of the body. 
 The vector $\v{s}_{CM}'$ is the vector from the origin of the body to undeflected center or mass (CM) of the body. The notations $\m{C}_t$ ($n_e\times 3$) and $\m{C}_r$ ($n_e\times 3$) are introduced to match Wallrapp's notations. The vector $\s_{P}'$ is the vector from the origin of the body to a deflected point of the body of elementary mass $\dm$. The undeflected position of this point is written $\s_{P_0}'$ and the displacement field $\v{u}'$, such that:  $\s_{P}'=\s_{P_0}' + \v{u}'$.
 For a first order expansion of the displacement field, $\v{u}'=\m{\Phi}' \v{q}_e$. Second order expansions need the introduction of an additional notation:  $\v{u}'=\m{\Phi}_u'(\v{q}_e) \v{q}_e$ (see \autoref{sec:AdvancedConsiderations} and \cite{Wallrapp:1994}).
-Wallrapp also include the elementary mass moment of inertia which results in additional terms in the integrals (see \cite{Wallrapp:1994}). Such contributions are relevant for instance when considering the torsion of a beam (see \cite{branlard:2019flex}).
+Wallrapp also includes the elementary mass moment of inertia which results in additional terms in the integrals (see \cite{Wallrapp:1994}). Such contributions are relevant for instance when considering the torsion of a beam (see \cite{branlard:2019flex}).
 The block matrices $\M_{xx}'$, $\M_{xe}'$ and $\M_{e e }'$ do not depend on the deformation of the body and are hence constant. The other terms are functions of $\v{q}_e$. They may be expressed as linear combination of constant integrals. These integrals are usually referred to as shape integrals (\cite{shabana:book}) or Taylor series coefficients (\cite{Wallrapp:1994}). 
 
 % See flexibility.py (GMBeam) or yams_sympy.py (BodyQuadraticForce)
@@ -1030,19 +1077,19 @@ where $\m{K}_e$ and $\m{D}_e$ are the elastic stiffness and damping matrix, and 
 The elastic damping forces are often given as stiffness proportional damping.
 For more details, see \cite{Wallrapp:1994}, and for more example of with elastic beams see \cite{branlard:2019flex}.
 % 
-The external loads can be assumed to consists of distributed volume forces $\v{p}'$ and a gravitational acceleration field $\v{g}'$. The components of the external loads
+The external loads can be assumed to consists of distributed volume forces $\v{p}'$ (in practice they are mostly surface forces of line forces) and a gravitational acceleration field $\v{g}'$. The components of the external loads
   in  \autoref{eq:EOMFlexibleBodyRepeated} are then obtained by integration over the whole body:
 \begin{align}
-    \v{h}_x'&=\int \v{p}' \, dV
+    \v{f}_x'&=\int \v{p}' \, dV
         + \m{M}_{xx}'\v{g'}
         \qquad (3\times 1)
             \label{eq:genQgeneral}
     \\
-    \v{h}_\theta'&=\int \v{s}_P'\times\v{p}' \, dV
+    \v{f}_\theta'&=\int \v{s}_P'\times\v{p}' \, dV
         + \m{M}_{\theta x}'\v{g'}
         \qquad (3\times 1)
     \\
-    \v{h}_e'&=\int {\m{\Phi}'}^T\, \v{p}' \, dV
+    \v{f}_e'&=\int {\m{\Phi}'}^T\, \v{p}' \, dV
         + \m{M}_{e x}'\v{g'}
         \qquad (n_e\times 1)
 \end{align}
@@ -1111,14 +1158,14 @@ The external loads can be assumed to consists of distributed volume forces $\v{p
 % --------------------------------------------------------------------------------{
 \section{Application of the shape function approach to an isolated beam}
 \label{sec:ShapeFunctionApproachBeam}
-In this section we illustrate how the elastic equations of \autoref{sec:FlexibleDefinitions} can be applied to an isolated beam. 
+In this section, we illustrate how the elastic equations of \autoref{sec:FlexibleDefinitions} can be applied to an isolated beam. 
 Examples of applications are further given in \autoref{sec:RotatingBlade} and \autoref{sec:Onshore2DOF}.
 We consider a beam directed along the $z$-axis and bending in the $x$ and $y$ direction. Expression are written in the coordinate system of the beam and primes are dropped in this section.
 The beam properties are the following: length $L$, mass per length $m$, and bending stiffness $EI_x$ and $EI_y$.
 %     and $EI_y$, elongation stiffness $EA$, and torsional stiffness $GK_t$. 
 We assume that the displacement field is such that the shape functions are function of $z$ only:
 % \begin{align}
-  $  \v{u}(z,t) = \sum_{i=1}^n \v{\Phi}_i(z) q_{e,j}(t)$.
+  $  \v{u}(z,t) = \sum_{i=1}^{n_e} \v{\Phi}_i(z) q_{e,i}(t)$.
 % \end{align}
 We also assume that the shape functions satisfy at least the geometric boundary conditions. 
 %     Because the dynamic boundary conditions may not be satisfied by the $\v{\Phi}_i$, we will use an energy formulation to derive the equations of motion.
@@ -1128,7 +1175,7 @@ The kinetic energy of the beam is $T= \frac{1}{2}\int_0^L m \dot{u}^2 dz=\frac{1
 where $M_{e,ij}$ is (see \autoref{eq:MMFlexible}):
 \begin{align}
   M_{e,ij} = \int_0^L m(z)\, \v{\Phi}_i(z)\cdot \v{\Phi}_j(z)\,dz 
-      ,\quad i,j=1,\ldots n
+      ,\quad i,j=1,\ldots n_e
       \label{eq:MassMatrixRRBeam}
 \end{align}
 \autoref{eq:MassMatrixRRBeam} involves a scalar product of the shape functions at each spanwise positions. Integrals over the moment of inertia can be used to account for torsion (see \cite{branlard:2019flex}).
@@ -1138,11 +1185,11 @@ The potential energy (strain energy) of the beam, is obtained as $V=\frac{1}{2} 
 %       \\
 %   K_{ij} = \int_0^L\left[ EI_x \kappa_{i,x}\kappa_{j,x} + EI_y \kappa_{i,y}\kappa_{j,y} + EA \kappa_{i,z}\kappa_{j,z} +  GK_t \kappa_{i,\theta}\kappa_{j,\theta}  \right]\,dz 
     K_{e,ij} = \int_{0}^L \left[EI_y \frac{d^2 \Phi_{i,x}}{dz^2} \frac{d^2 \Phi_{j,x}}{dz^2} + EI_x \frac{d^2 \Phi_{i,y}}{dz^2} \frac{d^2 \Phi_{j,y}}{dz^2}\right] \, dz
-      ,\quad i,j=1,\ldots n
+      ,\quad i,j=1,\ldots n_e
       \label{eq:stiffnessMatrixRRBeam}
 \end{align}
 % where $\kappa_{i,x}=\frac{d^2 \Phi_{i,x}}{d z^2}$ is the $x$-curvature of the shape function $i$.
-Elongation and torsional strains ($EA$ and $GK_t$) can similarly be added to the strain energy.
+Elongation and torsional strains ($EA$ and $GK_t$) can similarly be added to the strain energy and the stiffness matrix if longitudinal and torsional displacement fields are included in the shape functions.
 %, and %$\kappa_{i,\theta}=\frac{d \theta}{dz}$ is the derivative of the torsional angle about the beam axis.
 % 
 The external loads on the beam are assumed to consist of a distributed force vector $\v{p}(z)$.
@@ -1172,7 +1219,7 @@ If the shape functions are mode shapes, then the shape functions are orthogonal,
 The modal damping is then given by $D_{e,ii}= 2 \zeta_i M_{e,ii} \omega_{e,i}$, where $\zeta_i$ is the damping ratio associated with mode $i$.
 % The example of mode shapes will be illustrated in \autoref{sec:BeamModeShapeExample}.
 
-If the beam is loaded axially by a force $N(z)$, then this force produces a distributed load in the transverse direction equal to $\v{n} = \frac{\partial}{\partial z}\left[N(z)\frac{\partial \v{u}}{\partial z}\right]$, with components in the $y$ and $z$ direction (see \cite{branlard:2019flex}).
+If the beam is loaded axially by a force $N(z)$, then this force produces a distributed load in the transverse direction equal to $\v{n} = \frac{\partial}{\partial z}\left[N(z)\frac{\partial \v{u}}{\partial z}\right]$, with components in the $y$ and $z$ directions (see \cite{branlard:2019flex}).
 % and $n_y = \frac{\partial}{\partial z}\left[N(z)\frac{\partial u_y}{\partial z}\right]$.
 The generalized force associated with this loading is then: $Q_{N,i}=\int_0^L \v{\Phi}_i\cdot \v{n}\, dz$. Inserting the expression of $\v{n}$ and $\v{u}$, the generalized force has the form of a stiffness term: $Q_{N,i} =-\sum_j K_{N,ij} q_j$ with
 \begin{align}
@@ -1208,7 +1255,7 @@ In \autoref{eq:frstarRigid}, the Jacobian terms $\v{J}$ and the virtual work are
 \end{align}
 Some implementation choices are needed depending if these matrices are expressed in the global frame or a body frame. The Jacobian matrices are referred to as velocity transformation matrix, and the link between formulations in global and local coordinates is given in \cite{branlard:2019flex}. In the same reference, recursive relationships are given for tree-like assembly of bodies, to help express the Jacobian matrices of each body recursively, based on the matrices of the parent body. It is also noted that the quadratic velocity terms, $\v{k}_\omega$, can be obtained using the time derivative of the Jacobian matrix.
 
-In this article we have not explicitly written the rotational impact of the shape functions. In most applications, bodies are connected at their extremities and the deflection slope at a body extremity will induce a rotation of the subsequent body. The deflection slope can be obtained form the knowledge of the shape functions. This is readily accounted for by introducing time-varying rotation matrix between bodies, and this is the approach used in our symbolic framework. A formalism of rotations of bodies connected at their extremities is given in \cite{branlard:2019flex}. A more general formulation, introducing the shape function rotations $\m{\Psi}$ is given in \citep{Wallrapp:1994, Schwertassek:book, Lemmer:2018}.
+In this article, we have not explicitly written the rotational impact of the shape functions. In most applications, bodies are connected at their extremities and the deflection slope at a body extremity will induce a rotation of the subsequent body. The deflection slope can be obtained form the knowledge of the shape functions. This is readily accounted for by introducing time-varying rotation matrix between bodies, and this is the approach used in our symbolic framework. A formalism of rotations of bodies connected at their extremities is given in \cite{branlard:2019flex}. A more general formulation, introducing shape function rotations $\m{\Psi}$, is given in \citep{Wallrapp:1994, Schwertassek:book, Lemmer:2018}. In such formulation, the linear rotation field is obtained as $\m{I}+\m{\widetilde{\m{\Psi}\v{q}}}$, where $\m{I}$ is the identity matrix.
 
 The order of expansion of the displacement field leads to alternative formulations.
 In \cite{shabana:book} and \cite{branlard:2019flex} a first order expansion is used:
@@ -1318,11 +1365,11 @@ M_{R}  \ddot{q}\v{\hat{t}}_x + M_{R} \left(- \nu_y^{2} x_{NR} \dot{q}^{2} + \nu_
 \\
 \v{\tau}^*_R &= 
 J_{x,R} \ddot{\psi}\v{\hat{r}}_x \\
-&+ (J_{O,R} \nu_y \sin\left(\psi\right) \dot{\psi} \dot{q} + J_{O,R} \left(- \nu_y \sin\left(\psi\right) \dot{\psi} \dot{q} + \nu_y \cos\left(\psi\right) \ddot{q}\right) 
+&+ (J_{\oplus,R} \nu_y \sin\left(\psi\right) \dot{\psi} \dot{q} + J_{\oplus,R} \left(- \nu_y \sin\left(\psi\right) \dot{\psi} \dot{q} + \nu_y \cos\left(\psi\right) \ddot{q}\right) 
    - J_{x,R} \nu_y \sin\left(\psi\right) \dot{\psi} \dot{q})\v{\hat{r}}_y 
 \\
-&+ (J_{O,R} \nu_y \cos\left(\psi\right) \dot{\psi} \dot{q}
-+ J_{O,R} \left(- \nu_y \sin\left(\psi\right) \ddot{q} - \nu_y \cos\left(\psi\right) \dot{\psi} \dot{q}\right) - J_{x,R} \nu_y \cos\left(\psi\right) \dot{\psi} \dot{q})\v{\hat{r}}_z
+&+ (J_{\oplus,R} \nu_y \cos\left(\psi\right) \dot{\psi} \dot{q}
++ J_{\oplus,R} \left(- \nu_y \sin\left(\psi\right) \ddot{q} - \nu_y \cos\left(\psi\right) \dot{\psi} \dot{q}\right) - J_{x,R} \nu_y \cos\left(\psi\right) \dot{\psi} \dot{q})\v{\hat{r}}_z
 \end{align}
 
 
@@ -1358,7 +1405,7 @@ The elements of the mass matrix are:
 \begin{align}
     M_{11} &= \left[M_{e11}+ M_N + M_{R} \right]
         \\
-       &+ \left[J_{y,N} + J_{O,R} 
+       &+ \left[J_{y,N} + J_{\oplus,R} 
        + M_N\left(x_{NG}^{2} - 2 x_{NG} q_1 + z_{NG}^{2}\right)
        + M_{R} \left(x_{NR}^{2} - 2 x_{NR} q_1 + z_{NR}^{2}\right)
     \right] \nu_y^{2}

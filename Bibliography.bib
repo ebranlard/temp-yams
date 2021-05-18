@@ -236,8 +236,8 @@
     year     = {2019},
     keywords = {FEM, Flex, joint coordinates, multibody dynamics, Rayleigh-Ritz, torsion},
     doi      = {10.1002/we.2327},
-    url      = {https://doi.org/10.1002/we.2327}
 }
+%     url      = {https://doi.org/10.1002/we.2327}
 
 @article{Branlard:2020twin,
     AUTHOR = {Branlard, E. and Giardina, D. and Brown, C. S. D.},
@@ -247,13 +247,12 @@
     YEAR = {2020},
     NUMBER = {3},
     PAGES = {1155--1167},
-    URL = {https://wes.copernicus.org/articles/5/1155/2020/},
     DOI = {10.5194/wes-5-1155-2020}
 }
+%     URL = {https://wes.copernicus.org/articles/5/1155/2020/},
 
 @article{Branlard:2020twinOF,
 	doi = {10.1088/1742-6596/1618/2/022030},
-	url = {https://doi.org/10.1088/1742-6596/1618/2/022030},
 	year = 2020,
 	month = {sep},
 	publisher = {{IOP} Publishing},
@@ -263,6 +262,7 @@
 	title = {A digital twin based on {OpenFAST} linearizations for real-time load and fatigue estimation of land-based turbines},
 	journal = {Journal of Physics: Conference Series}
 }
+% 	url = {https://doi.org/10.1088/1742-6596/1618/2/022030},
 
 % ------------------------------------------------------------------------------}
 
@@ -274,6 +274,13 @@
     year={2021},
     misc={Last accessed January 2021},
     title={YAMS GitHub repository \url{http://github.com/ebranlard/YAMS/}},
+}
+
+@misc{WELIBgithub,
+    author={E. Branlard},
+    year={2021},
+    misc={Last accessed May 2021},
+    title={WELIB, Wind Energy Library, GitHub repository \url{http://github.com/ebranlard/welib/}},
 }
 
 
@@ -512,7 +519,6 @@ url="http://dx.doi.org/10.1007/BF01396491"
   title={Dynamics of Multibody Systems},
   author={Shabana, A.A.},
   isbn={9781107042650},
-  series={Dynamics of Multibody Systems},
   year={2013},
   publisher={Cambridge University Press}
 } 
@@ -618,7 +624,7 @@ url="http://dx.doi.org/10.1007/BF01396491"
 
 @book{Schwertassek:book,
     author={R. Schwertassek and O. Wallrapp},
-    title={Dynamik flexibler Mehrk{\:o}rpersysteme. [in German]}, 
+    title={Dynamik flexibler Mehrk{\"o}rpersysteme. [in German]}, 
     publisher={Friedr. Vieweg \& Sohn, Braunschweig},
     year={1999}
 }
@@ -736,7 +742,7 @@ author = "Parviz E. Nikravesh"
 @PHDTHESIS{Lemmer:2018,
     author={F. Lemmer},
     title={Low-order modeling, controller design and optimization of floating offshore wind turbines.},
-    institution={Universit{\:a}t Stuttgart},
+    school={Universit{\:a}t Stuttgart},
     year={2018}
 }
 
@@ -811,6 +817,51 @@ standard input data.},
     booktitle = {Multibody Dynamics 2005, ECCOMAS Thematic Conference},
     year=2005
 }
+
+@article{Docquier:2013,
+    author={Docquier, N. and Poncelet, A. and Fisette, P.},
+    title={{ROBOTRAN: a powerful symbolic gnerator of multibody models}},
+    journal={Mech. Sci.},
+    volume={4},
+    pages={199-219},
+    doi={10.5194/ms-4-199-2013},
+    year={2013}
+}
+
+@TECHREPORT{Autolev,
+    author={Reckdahl, K.J. and Mitiguy, P.C.},
+   title={Autolev Tutorial},
+   institution={OnLine Dynamics Inc., Sunnyvale CA},
+    year={1996},
+    month={March}
+}
+
+@TECHREPORT{MotionGenesis,
+    author={MotionGenesis},
+    url={www.motiongenesis.com},
+   title={MotionGenesisTM Kane Tutorial},
+   institution={Motion Genesis LLC},
+    year={2016},
+    month={July}
+}
+
+@article{NeweulM2,
+    author={Kurtz, T. and Eberhard, P. and Henninger, C. and Schiehlen, W.},
+    year={2010},
+    title={From Neweul to Neweul-M2: symbolical equations of motion for multibody system analysis and synthesis},
+    journal={Multibody System Dynamics},
+    volume={24},
+    doi={10.1007/s11044-010-9187-x},
+    pages={25-41}
+}
+
+@misc{CADynTurb,
+    author={J. Geisler},
+    year={2021},
+    title={CADynTub: Wind Turbine Model from OpenFAST Data using CADyn Equations of Motion},
+    url={https://github.com/jgeisler0303/CADynTurb}
+}
+
 
 % ------------------------------------------------------------------------------}
 % --- GEOMETRICAL STIFFENING 
@@ -5794,6 +5845,7 @@ publisher= {RIS\O}
 @MISC{openfast,
     author = {OpenFAST},
     title={Open-source wind turbine simulation tool, available at \url{http://github.com/OpenFAST/OpenFAST/}},
+    year=2021,
 }
 @TECHREPORT{fastuser,
     author = {J. M. Jonkman and M. L. Buhl},
@@ -5826,7 +5878,7 @@ volume = {12},
 number = {5},
 pages = {459-492},
 keywords = {offshore wind turbine, floating, model development, model verification, aero-hydro-servo-elastic analysis},
-doi = {https://doi.org/10.1002/we.347},
+doi = {10.1002/we.347},
 year = {2009}
 }
 
@@ -7103,6 +7155,23 @@ pages={p281-287}
    year = {2015},
    isbn = {9781624102769}
 }
+
+
+@article{Poschke:2020,
+    author = {Pöschke, Florian and Gauterin, Eckhard and Kühn, Martin and Fortmann, Jens and Schulte, Horst},
+    title = {Load mitigation and power tracking capability for wind turbines using linear matrix inequality-based control design},
+    journal = {Wind Energy},
+    volume = {23},
+    number = {9},
+    pages = {1792-1809},
+    keywords = {damage equivalent load, grid stabilization, load reduction, model-based control, power tracking, ultimate load, wind speed estimation, wind turbine control},
+    doi = {https://doi.org/10.1002/we.2516},
+    url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/we.2516},
+    eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1002/we.2516},
+    year = {2020}
+}
+
+
 
 
 % --------------------------------------------------------------------------------}
