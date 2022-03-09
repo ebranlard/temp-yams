@@ -55,4 +55,34 @@ $(SVGOUTDIR):
 	mkdir $@
 
 clean:
-	$(RM) *.log *.aux *.out *.bbl *.blg *.toc
+	$(RM) *.log *.aux *.out *.bbl *.blg *.toc *.pag
+
+typos:
+	python C:/Config/scripts/fixTypos.py $(MAIN).tex $(MAIN)_typos.tex
+
+
+doc:
+	pandoc --wrap=preserve -F pandoc-citeproc -s $(MAIN).tex -o $(MAIN).md --bibliography=Bibliography.bib --reference-doc=_Template.docx
+# 	pandoc --number-section  --filter pandoc-citeproc -s $(MAIN).tex -o $(MAIN).docx --bibliography=Bibliography.bib --reference-doc=_Template.docx
+	python C:/Config/scripts/parseMarkdown.py $(MAIN).md $(MAIN)-clean.md NoRef
+	pandoc --number-section --filter pandoc-citeproc -s $(MAIN)-clean.md -o $(MAIN).docx --bibliography=Bibliography.bib --reference-doc=_Template.docx
+# 	pandoc -F pandoc-crossref -s $(MAIN).md -o $(MAIN).docx --number-section --bibliography=Bibliography.bib
+# 	pandoc -F pandoc-eqnos -s $(MAIN).md -o $(MAIN).docx --number-section --bibliography=Bibliography.bib
+# 	pandoc -F pandoc-crossref -s $(MAIN).md -o $(MAIN).docx --number-section --bibliography=Bibliography.bib
+	start "" "$(MAIN).docx"
+
+diff:
+	latexdiff $(MAIN)_old.tex $(MAIN).tex > $(MAIN)-diff.tex
+	cp $(MAIN).aux $(MAIN)-diff.aux
+	cp $(MAIN).bbl $(MAIN)-diff.bbl
+	cp $(MAIN).blg $(MAIN)-diff.blg
+	pdflatex --interaction=nonstopmode $(MAIN)-diff.tex
+
+diff2:
+	pdflatex --interaction=nonstopmode $(MAIN)-diff.tex
+
+final:
+	python C:/Config/scripts/MakeStandaloneFigs.py --toeps --fullwidth --cropafter --border 10 --folder _final $(MAIN).tex
+# 	python C:/Config/scripts/MakeStandaloneFigs.py --toeps --fullwidth --cropafter --folder _final $(MAIN).tex
+
+
