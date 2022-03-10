@@ -100,8 +100,8 @@
 % --------------------------------------------------------------------------------{
 \begin{abstract}
 The article presents a symbolic framework that is used to obtain the linear and non-linear equations of motion of a multibody system including rigid and flexible bodies. Our approach is based on Kane's method and a nonlinear shape function representation for flexible bodies. The method yields compact symbolic equations of motion with implicit account of the constraints. 
-The general and automatic framework facilitates the creation and manipulation of models with various levels of fidelity.
-The symbolic treatment allows for the obtention of analytical gradients and linearized equations of motion. The linear and non-linear equations can be exported to Python code or dedicated software. The applications are multiple such as: time-domain simulation, stability analyses, frequency domain analyses, advanced controller design, state observers, digital twins, etc.
+The general and automatic framework facilitate the creation and manipulation of models with various levels of fidelity.
+The symbolic treatment allows for the obtention of analytical gradients and linearized equations of motion. The linear and non-linear equations can be exported to Python code or dedicated software. The application are multiple such as: time-domain simulation, stability analyses, frequency domain analyses, advanced controller design, state observers, digital twins, etc.
 In this paper, we describe the method we used to systematically generate the equations of motion of multibody systems. We apply the framework to generate illustrative onshore and offshore wind turbine models. We compare our results with OpenFAST simulations and discuss the advantages and limitations of the method. A Python implementation is provided as an opensource project. 
 % provides granularity to obtain models of various levels of fidelity.
 % The general framework and the automatic generation of the equations provides granularity to obtain models of various levels of fidelity.
@@ -217,7 +217,8 @@ Throughout the paper, we use bold symbols for vectors and matrices, and uppercas
 The elastic displacement is obtained as a superposition of elastic deformations (see~\autoref{sec:flexiblebodies}).
 We define the transformation matrix $\m{R}_i$ which transforms coordinates from the body frame to the inertial frame, and by definition
 $[\v{\tilde{{\omega}}}_i] = \v{\dot{R}}_i\v{R}_i^T$, where $[\tilde{\ \ }]$ represents the skew symmetric matrix. 
-We assume that vectors are represented as column-vectors to conveniently introduce matrix-vector multiplications. We use the notation ``$\cdot$'' to indicate the dot product between two vectors (irrespectively of their column or row representation).
+
+
 
 
 
@@ -268,7 +269,7 @@ The inertial force, $\v{f}_i^*$, and inertial torque, $\v{\tau}_i^*$, acting on 
       \label{eq:InertialLoadsRigid}
 \end{align}
 where $m_i$ is the mass of the body, $\v{a}_{G,i}$ is the acceleration of its center of mass with respect to the inertial frame, $\m{I}_{G,i}$ is the inertial tensor of the body expressed at its center of mass. 
-\autoref{eq:InertialLoadsRigid} is a vectorial relationship, it may therefore be evaluated in any coordinate system.
+\autoref{eq:InertialLoadsRigid} is a vectorial relationship, it may therefore be evaluated in any coordinate system. 
 The component $f_{ri}^*$ is defined as:
 \begin{align}
    \kanef_{ri}^* &= \v{J}_{v,ri} \cdot \v{f}_i^*  + \v{J}_{\omega,ri} \cdot \v{\tau}_i^*
@@ -285,7 +286,7 @@ with
     ,\quad
     \v{J}_{\omega,ri} = \frac{\partial \v{\omega}_{i}}{\partial \dot{q}_r}
 \end{align}
-where $\v{v}_{G,i}$ is the velocity of the body mass center with respect to the inertial frame.
+where $\v{v}_{G,i}$ is the velocity of the body masscenter with respect to the inertial frame.
 The partial velocities, or Jacobians, $\v{J}_v$ and $\v{J}_\omega$, are key variables of the Kane's method. They project the physical coordinates into the generalized coordinates ($\v{q}$), inherently accounting for the kinematic constraints between bodies. In numerical implementations, the Jacobians are typically stored in matricial forms, referred to as velocity transformation matrices.
 The terms $\kanef_{ri}^*$ can equivalently be obtained using the partial velocity of any body point (e.g. the origin) by carefully transferring the inertial loads to the chosen point.
 The external forces and torques acting on the body are combined into an equivalent force and torque acting at the center of mass, written $\v{f}_i$  and $\v{\tau}_i$. 
@@ -309,7 +310,7 @@ are inserted in \autoref{eq:frfrstarMultiBody} to obtain the final equations of 
 \label{sec:flexiblebodies}
 
 We assume that body $i$ is a flexible body and proceed to define the terms $\kanef_{ri}$ and $\kanef_{ri}^*$.
-The dynamics of a flexible body are described in standards textbooks 
+The dynamics of a flexible body is described in standards textbooks 
 such as \cite{shabana:book} or \cite{Schwertassek:book}.
 Unlike rigid bodies, the equations for flexible bodies are typically expressed with respect to a reference point different from the center of mass. We will call this point the origin and write it $O_i$.The elastic displacement field of the body is written $\v{u}$. It defines the displacement of any point of the body with respect to its undeformed position. Using the first order\footnote{We address the second order approximation in \autoref{sec:AdvancedConsiderations} and \autoref{sec:AlternativeFormulations}.} Rayleigh-Ritz approximation, the displacement field at a given point, $P$, is given by the sum of shape function contributions: $\v{u}(P)=\sum_{j=1}^{n_{e,i}} \v{\Phi}_{ij}(P) \v{q}_{e,ij}(t)$, where $\m{\Phi}_{ij}$ are the shape functions (displacement fields) of body $i$ and $\v{q}_{e,ij}$ is the subset of $\v{q}$ consisting of the elastic coordinates of body $i$, of size $n_{e,i}$. The principles of the shape function approach applied to beams are given in \autoref{sec:ShapeFunctionApproachBeam}. The shape functions are more easily represented in the body coordinate system.  
 Vectors and matrices that are explicitly written in the body frame will be written with primes.
@@ -345,7 +346,7 @@ The equations of motion of the flexible bodies are~\citep{Wallrapp:1994}:
     \end{bmatrix}_i
     \label{eq:EOMFlexibleBody}
 \end{align}
-with: $x$, $\theta$, $e$, subscripts that indicate the translation, rotation and elastic components; $\m{M}$,  the mass matrix of dimension $6+n_{e,i}$ made of the block matrices $\m{M}_{xx},\cdots,\m{M}_{ee}$; $\v{a}_i$ and $\v{\dot{\omega}}_i$, the linear and angular acceleration of the body (origin) with respect to the inertial frame ; $\v{k}_\omega$, the centrifugal, gyration and Coriolis loads, also called quadratic velocities loads; $\v{k}_e$, the elastic strain loads, which may contain geometrical stiffening effects ; $\v{f}$, the external forces, torques and elastic generalized forces.
+with: $x$, $\theta$, $e$, subscripts that indicate the translation, rotation and elastic components; $\m{M}$,  the mass matrix of dimension $6+n_{e,i}$ made of the block matrices $\m{M}_{xx},\cdots,\m{M}_{ee}$; $\v{a}_i$ and $\v{\dot{\omega}}_i$, the linear and angular acceleration of the body (origin) with respect to the inertial frame ; $\v{k}_\omega$, the centrifugal, gyration and Coriolis loads, also called quadratic velocities loads; $\v{k}_e$, the elastic strain loads ; $\v{f}$, the external forces, torques and elastic generalized forces.
 The different components of $\m{M}$, $\m{k}_\omega$,  $\m{k}_e$ and $\v{f}$ are given in \autoref{sec:FlexibleDefinitions}.  These terms depend on $\v{q}$, $\v{\dot{q}}$, and $\v{\Phi}_i$.
 % 
 The inertial force, torque and elastic loads are:
@@ -397,10 +398,10 @@ They are recast into the form:
     \v{M}(\v{q})\v{\ddot{q}} &= \v{F}(\v{q}, \v{\dot{q}}, \v{u},t) 
         \label{eq:NonLinearEOM}
 \end{align}
-where $\m{M}=-\frac{\partial \v{\kanee}}{\partial \v{\ddot{q}}}$ is the system mass matrix, and $\v{F}$ is the forcing term vector, that is, the remainder terms of the equation ($\v{F}=\v{\kanee}+\m{M}\v{\ddot{q}})$.
+where $\m{M}=-\frac{\partial \v{\kanee}}{\partial \v{\ddot{q}}}$ is the system mass matrix, and $\v{F}$ is the forcing term vector, that is, the reminder terms of the equation ($\v{F}=\v{\kanee}+\m{M}\v{\ddot{q}})$.
     The vector $\v{u}$ is introduced to represent the time dependent inputs that are involved in the determination of the external loads. Both sides of the equations are also dependent on some parameters but this dependency is omitted to shorten notations.
 The stiffness and damping matrices may be obtained by computing the Jacobian of the equations of motion with respect to $\v{q}$ and $\v{\dot{q}}$ respectively.
-The non-linear equation given in \autoref{eq:NonLinearEOM} is easily integrated numerically, for instance by recasting the system into a first order system, or by using a dedicated second order system time integrator.
+The non-linear equation given in \autoref{eq:NonLinearEOM} is easily integrated numerically, for instance by recasting the system into a first order system, or by using dedicated second order system time integrator.
 
 In various applications, a linear time invariant approximation of the system is desired.
 Such approximation is obtained at an operating point, noted with the subscript $0$, which is a solution of the non-linear equations of motion, viz:
@@ -411,7 +412,7 @@ The linearized equations about this operating point are obtained using a Taylor-
 \begin{align}
  &   \m{M}_0(\v{q}_0)  \v{\delta\ddot{q}} 
     +\m{C}_0(\v{q}_0, \v{\dot{q}}_0, \v{u}_0)  \v{\delta\dot{q}} 
-    +\m{K}_0(\v{q}_0, \v{\dot{q}}_0, \v{\ddot{q}}_0, \v{u}_0)  \v{\delta  q } 
+    +\m{K}_0(\v{q}_0, \v{\dot{q}}_0, \v{u}_0)  \v{\delta  q } 
     =
     \m{Q}_0(\v{q}_0, \v{\dot{q}}_0, \v{u}_0) \v{\delta u}
 \intertext{with}
@@ -423,12 +424,8 @@ The linearized equations about this operating point are obtained using a Taylor-
     ,\
 \m{Q}_0= \left.\frac{\partial \v{\kanee}}{\partial \v{u}}\right|_0
 \end{align}
-where $\m{M}_0$, $\m{C}_0$, $\m{K}_0$ are the linear mass, damping, and stiffness matrices, $\m{Q}_0$ is the linear forcing vector (or input matrix), $\delta$ indicates a small perturbation of the quantities, and $|_0$ indicates that the expressions are evaluated at the operating point.
-In practical applications, linearization is done at an operating point where the acceleration is zero ($\v{\ddot{q}}_0=0)$ and most velocities are also zero.
-%\weird{Because this linearization is derived through symbolic operations, it is parametric in the operating point. 
-%Therefore the linearization has to be performed only once. A all possible linearizations can be obtained by simply evaluating the symbolic system matrices at a specific operating point. %This is in contrast to hard coded turbine simulator with linearization capability where a dedicated simulation has to be run for each operating point.}
+where $\m{M}_0$, $\m{C}_0$, $\m{K}_0$ are the linear mass, damping, and stiffness matrices, $\m{Q}_0$ is the linear forcing vector, $\delta$ indicate a small perturbation of the quantities, and $|_0$ indicates that the expressions are evaluated at the operating point.
 Examples of application of the linear equations of motion are: controller design, frequency domain analyses, stability analyses.
-The symbolic system matrices also allow for the easy formulation of linear parameter-varying models used in many advanced control applications.
 
 
 
@@ -463,7 +460,7 @@ The python library YAMS (Yet Another Multibody Solver) started as a numerical to
 The library is now supplemented with a symbolic module so that both numerical and symbolic calculations can be achieved.
 The new implementation uses the python symbolic calculation package SymPy~\citep{sympy}. We leveraged the features present in the subpackage ``mechanics'', which contains all the tools necessary to compute kinematics: definition of frames and points, and determination of positions, velocities, and accelerations. The subpackage also contains an implementation of Kane's equations for rigid body (i.e. \autoref{sec:rigidbodies}). We were also inspired by the package PyDy~\citep{Gede:2013}, which is a convenient tool to export the equations of motion to executable code, and directly visualize the bodies in 3D. The core of our work consisted in implementing a class to define flexible bodies (\texttt{FlexibleBody}) and the corresponding Kane's method for this class (\autoref{sec:flexiblebodies}).  
 
-For the \texttt{FlexibleBody} class, we followed the formalism of \cite{Wallrapp:1994}, and implemented Taylor expansions for all the terms defined in \autoref{sec:FlexibleDefinitions}, allowing the symbolic computation with Taylor expansions to any order. In practice, a zeroth or 1st order expansion is used. The use of Taylor expansion is presented in \autoref{sec:TaylorExpansion}. 
+For the \texttt{FlexibleBody} class, we followed the formalism of \cite{Wallrapp:1994}, and implemented Taylor expansions for all the terms defined in \autoref{sec:FlexibleDefinitions}, allowing the symbolic computation with shape functions of any order. 
 The different Taylor coefficients may be kept as symbolic terms, or replaced early on by numerical values provided for instance by an SID. 
 
 We structured the code into three layers. 1) The low-level layer integrates seamlessly with SymPy and PyDy, by using the \texttt{FlexibleBody} class we provide. It is the layer which offers the highest level of granularity and control for the user, since arbitrary systems with various kinematic constraints can be implemented, at the cost of requiring more expertise. 2) The second-level automates the calculation of the kinematics, by introducing simple connections between rigid and flexible bodies. The connections may be rigid, with constant offsets and rotations, or dynamic. A connection from a flexible body to another body is assumed to occur at one extremity of the flexible body. Some knowledge of SymPy mechanics are still required to use this layer.
@@ -577,7 +574,7 @@ Similarly, the Southwell coefficient is a function of the rotational speed, but 
 
 
 The treatment for a shape function in the edgewise direction is similar, using $\v{\Phi}_2=\Phi_2 \v{\hat{\theta}}$. In this case, the centrifugal force also has a component in the tangential direction equal to $p_{\theta,\text{centri}}(r) = -\Omega^2u_\theta(r) dm(r)$, with $u_\theta=\Phi_2 q$. 
-This leads to a generalized force equal to $\int_0^L p_{\theta,\text{centri}} \Phi_2 dr=-\Omega^2 M_{e} q$, or equivalently, to a stiffness term: $K_{\omega}=-\Omega^2 M_{e}$. It can be verified that this generalized force corresponds to the contribution $O_{e,11}\omega_x^2$, from $\v{k}_{\omega,e}$, given in \autoref{eq:komegae}. For an edgewise mode, the frequency therefore evolves as: 
+This leads to a generalized force equal to $\int_0^L p_{\theta,\text{centri}} dr \Phi_2=-\Omega^2 M_{e} q$, or equivalently, to a stiffness term: $K_{\omega}=-\Omega^2 M_{e}$. It can be verified that this generalized force corresponds to the contribution $O_{e,11}\omega_x^2$, from $\v{k}_{\omega,e}$, given in \autoref{eq:komegae}. For an edgewise mode, the frequency therefore evolves as: 
 \begin{align}
  \omega_0(\Omega)=\sqrt{\frac{(K_{e}+ K_g(\Omega)+K_\omega(\Omega))}{M_e}}=\sqrt{\omega_0^2(0)+(k_\Omega-1)\Omega^2}
 \end{align}
@@ -713,7 +710,7 @@ K_{q,lin}= (K_{e} + K_g)
 + \nu_{y} f_a \sin\theta_t 
 \end{align}
 For the NREL-5MW reference turbine \citep{nrel5mw}, the different numerical values are:
-$g=9.807$ \unit{m\cdot s}$^{-2}$,
+$g=9.807$ \unit{m.s}$^{-2}$,
 $\theta_t=5$ \unit{deg},
 $x_{NR}=-5.0$ \unit{m},
 $z_{NR}= 2.4$ \unit{m},
@@ -778,7 +775,6 @@ To simplify the equations and limit their length when printing them in this arti
 It is seen from \autoref{eq:GMEx1}, that a first order approximation for $\nu_y$ would have removed the influence of the rotor and nacelle $y$-inertia on the generalized mass associated with the tower fore-aft bending. 
 
 We performed a time simulation of the model using both our symbolic framework YAMS and OpenFAST.
-The time integration in YAMS currently relies on tools provided in the SciPy package, which implements several time integrators.   Sufficient level of accuracy was obtained using a 4th-order Runge-Kutta method which the default method. Kane's method, which uses a minimal set of coordinates, tends to lead to stiff system, and it is possible that implicit integrator may be needed for other systems.
 We compare the time series obtained using our generated functions with results from the equivalent OpenFAST simulation in \autoref{fig:F0T2N0S1Sim}. In this simulation, the tower top is initially displaced by $1$ \unit{m} in the $x$ and $y$ directions, and the rotational speed is $5$ \unit{rpm}.
 % ---------------------------------- FIGURE --------------------------------------
 % From script: F0T2N0S1_yams_model.py, folder: welib\yams\examples_symbol
@@ -1083,7 +1079,7 @@ where $\m{K}_e$ and $\m{D}_e$ are the elastic stiffness and damping matrix, and 
 The elastic damping forces are often given as stiffness proportional damping.
 For more details, see \cite{Wallrapp:1994}, and for more example of with elastic beams see \cite{branlard:2019flex}.
 % 
-The external loads can be assumed to consists of distributed volume forces $\v{p}'$ (in practice they are mostly surface forces or line forces) and a gravitational acceleration field $\v{g}'$. The components of the external loads
+The external loads can be assumed to consists of distributed volume forces $\v{p}'$ (in practice they are mostly surface forces of line forces) and a gravitational acceleration field $\v{g}'$. The components of the external loads
   in  \autoref{eq:EOMFlexibleBodyRepeated} are then obtained by integration over the whole body:
 \begin{align}
     \v{f}_x'&=\int \v{p}' \, dV
@@ -1251,7 +1247,7 @@ Examples of applications are given in \autoref{sec:RotatingBlade} and \autoref{s
 Different formulations of flexible multibody dynamics are found in the literature.
 Some of the alternatives are briefly discussed in this section.
 
-In \autoref{eq:frstarRigid}, the Jacobian terms $\v{J}$ and the virtual work are expressed in vector form. In such form, there is no need to state in which coordinate system the different vectors are expressed. This is convenient to reduce the size of the expressions when using symbolic calculations. In a numerical framework, the vector will have to be expressed in a common frame. When such approach is used (see e.g. \cite{Lemmer:2018, branlard:2019flex}), the Jacobians are sometimes stacked into a matricial form:
+In \autoref{eq:frstarRigid}, the Jacobian terms $\v{J}$ and the virtual work are expressed in vector form. In such form, there is no need to precise in which coordinate system the different vectors are expressed. This is convenient to reduce the size of the expressions when using symbolic calculations. In a numerical framework, the vector will have to be expressed in a common frame. When such approach is used (see e.g. \cite{Lemmer:2018, branlard:2019flex}), the Jacobians are sometimes stacked into a matricial form:
 \begin{align}
 \m{J} = 
     \begin{bmatrix}

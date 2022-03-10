@@ -20,7 +20,7 @@ MV=mv
 SLASH="/"
 # Windows specific
 ifeq ($(WINDOWS),1)
-   INKSCAPE="C:/Program Files/Inkscape/inkscape.exe"
+#    INKSCAPE="C:/Program Files/Inkscape/inkscape.exe"
    RM=del
    MV=move /Y 
    SLASH="\\"
@@ -43,11 +43,16 @@ bibtex:
 figspdf: $(SVGOUTDIR) $(SVGTEXOUTDIR) $(SVGS2PDFS) $(SVGTEXS2PDFS)
 
 $(SVGTEXOUTDIR)/%.pdf:$(SVGTEXDIR)/%.svg 
-	$(INKSCAPE) -z -D --file="$<" --export-pdf="$(SVGTEXOUTDIR)/$*.pdf" --export-latex
+	$(INKSCAPE) -z -D -o "$(SVGTEXOUTDIR)/$*.pdf" --export-latex   "$<"
 	$(MV) "$(SVGTEXOUTDIR)$(SLASH)$*.pdf_tex" "$(SVGTEXOUTDIR)$(SLASH)$*.tex"
+# 	$(INKSCAPE) -z -D --file="$<" --export-pdf="$(SVGTEXOUTDIR)/$*.pdf" --export-latex
+# 	$(MV) "$(SVGTEXOUTDIR)$(SLASH)$*.pdf_tex" "$(SVGTEXOUTDIR)$(SLASH)$*.tex"
 
 $(SVGOUTDIR)/%.pdf: $(SVGDIR)/%.svg
-	$(INKSCAPE) -D -A "$@" "$<"
+	$(INKSCAPE) -D -o "$@" "$<"
+# 	$(INKSCAPE) -D -A "$@" "$<"
+ 
+
  
 $(SVGTEXOUTDIR):
 	mkdir $@
