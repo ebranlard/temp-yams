@@ -58,9 +58,9 @@
  \end{figure}
 }
 % --- Comments
-\newcommand{\weird}[1]{{\color{red}{!!! {#1} !!!}}}
-\newcommand{\todo}[1]{{\colorbox{yellow}{TODO:}} #1\colorbox{yellow}{/}}
-\newcommand{\comment}[1]{{\color{red}{!!! {#1} !!!}}}
+\newcommand{\todoEmmanuel}[1]{{\colorbox{yellow}{TODO Emmanuel:}}{\color{red}{#1}}\colorbox{yellow}{/}}
+\newcommand{\todoJens}    [1]{{\colorbox{yellow}{TODO Jens:    }}{\color{red}{#1}}\colorbox{yellow}{/}}
+\newcommand{\todoBoth}    [1]{{\colorbox{yellow}{TODO Both:    }}{\color{red}{#1}}\colorbox{yellow}{/}}
 
 \newcommand{\kanef}{\mathrm{f}}
 \newcommand{\kanee}{\mathrm{e}}
@@ -134,6 +134,7 @@ A Python implementation is provided as an opensource project.
 % --- Introduction 
 % --------------------------------------------------------------------------------{
 \introduction 
+\todoBoth{Mention that this is not state of the art. Mention geometrically exact theory with reference. Mention generalized multibody framework with reference.}
 
 The next generation of wind turbine digital technologies requires versatile aero-servo-hydro-elastic
 models, with various levels of fidelity, suitable for a wide range of applications. 
@@ -454,7 +455,7 @@ The linearized equations about this operating point are obtained using a Taylor-
 \end{align}
 where $\m{M}_0$, $\m{C}_0$, $\m{K}_0$ are the linear mass, damping, and stiffness matrices, $\m{Q}_0$ is the linear forcing vector (or input matrix), $\delta$ indicates a small perturbation of the quantities, and $|_0$ indicates that the expressions are evaluated at the operating point.
 In practical applications, linearization is done at an operating point where the acceleration is zero ($\v{\ddot{q}}_0=0)$ and most velocities are also zero.
-%\weird{Because this linearization is derived through symbolic operations, it is parametric in the operating point. 
+%\comment{Because this linearization is derived through symbolic operations, it is parametric in the operating point. 
 %Therefore the linearization has to be performed only once. A all possible linearizations can be obtained by simply evaluating the symbolic system matrices at a specific operating point. %This is in contrast to hard coded turbine simulator with linearization capability where a dedicated simulation has to be run for each operating point.}
 Examples of application of the linear equations of motion are: controller design, frequency domain analyses, stability analyses.
 The symbolic system matrices also allow for the easy formulation of linear parameter-varying models used in many advanced control applications.
@@ -513,6 +514,15 @@ The non-linear and linear equations of motion can be exported to latex and pytho
 As little as three lines of code are required by the user to perform the full step from derivation of the equations, optional linearization, and exportation.
 To obtain numerical results from the exported python code, the user needs to provide the arrays with the degrees of freedom values $\v{q}$ and $\v{\dot{q}}$, their initial conditions,a dictionary with inputs ($\v{u}$) that are function of time, and a dictionary of parameters ($\v{p}$) containing all the numerical constants such as mass, acceleration of gravity, etc.
 We provide tools to readily time-integrate the generated model using numerical values (including initial values) from a set of OpenFAST input files.
+
+\todoEmmanuel{Mention a bit more about the framework. Update the sketch below illustrating. Describe the workflow. Ggetting a SID, or dictionary from input files. Getting a source code from the framework.}
+% ---------------------------------- FIGURE --------------------------------------
+% From script: CentrifugalStiffening.py, folder: C:/Work/_libs/welib/welib/yams/examples_symbol, 2021/05/06
+\noindent\begin{figure}[!htb]\centering%
+  \includegraphics[width=0.48\textwidth]{figs_svg/YAMSWorkflow.pdf}
+  \caption{Worflow}\label{fig:YAMSWorkflow}%
+\end{figure}
+% --------------------------------------------------------------------------------
 
 The source code of YAMS is available on github as a subpackage of the Wind Energy LIBrary, WELIB~\citep{WELIBgithub}.
 The repository contains tests and working examples, including the ones presented in \autoref{sec:WEapplications}.
@@ -576,7 +586,6 @@ We start by modelling the blade using a single shape function, assumed to be dir
 % --------------------------------------------------------------------------------
 The undeflected blade is directed along the radial coordinate $r$, and rotates around the $ x$ axis.
 % is either the aerodynamic load in the flapwise direction, 
-% \weird{TODO TODO I STOPPED HERE}
 % We assume that the blade the radial coordinate $r$
 We assume that the shape function is known, noted $\Phi(r)$. 
 It can be computed as the first flapwise mode of the blade, using tools provided in YAMS.
@@ -918,7 +927,6 @@ The eigenvalue analysis of the YAMS state matrix returned a pitch and fore-aft f
 
 
 % \subsection{Model with blade flexibility}
-% \weird{TODO, if I have time or for the revision of the paper}
 
 
 % \subsection{Many DOFs}
@@ -934,6 +942,7 @@ The eigenvalue analysis of the YAMS state matrix returned a pitch and fore-aft f
 
 \subsection{Applications}
 \label{sec:Applications}
+\todoJens{If possible add a tiny bit more on the applications. Not too much, just a bit because we said we would stress a bit more why this framework is useful.}
 The implementation of the symbolic YAMS library was originally motivated by the need to obtain a simple linearized model of a floating wind turbine for frequency domain simulations.
 The potential applications of the framework are yet multiple:
 \begin{itemize}
@@ -1052,8 +1061,11 @@ EB wrote a Python implementation and JG wrote a Maxima implementation.  EB wrote
 
 
 \codeavailability{
-    A Zenodo link will be created for the current version of:
-    \url{https://github.com/ebranlard/yams}
+    \todoEmmanuel{Create a Zenodo link for welib/yams
+    \url{https://github.com/ebranlard/yams}. No rush}
+
+    \todoJens{A Zenodo link for CADyn (No rush on that, we can wait for the paper to be fully accepted..}
+    \todoEmmanuel{Mention where the examples are in the repo}
 } %% use this section when having only software code available
 
 % \acknowledgements{
@@ -1422,7 +1434,7 @@ The external loads consist of: the gravitational force, distributed forces per u
 where the indices $\alpha$ and $\beta$ run on the $x, y, z$ coordinates. 
 Each of the matrices $\m{K}_{0*,\alpha}$ or $\m{K}_{0*,\alpha\beta}$ have the shape $n_e\times n_e$ and are obtained as the geometrical stiffness matrices for unit accelerations, loads or product of rotational velocities in the given direction defined by $\alpha$ and $\beta$ ($x$, $y$, or $z$).
 For instance: $\m{K}_{0t,z}$ is the geometrical stiffness matrix corresponding to a unit acceleration in the $z$ direction, 
-$\m{K}_{0\omega,xy}^k$ is the geometrical stiffness matrix corresponding to a unit rotations in the $x$ and $y$ direction (assuming the coordinates of the rotational velocity are independent \comment{This is a bit odd, make sure I understand this}),
+$\m{K}_{0\omega,xy}^k$ is the geometrical stiffness matrix corresponding to a unit rotations in the $x$ and $y$ direction (assuming the coordinates of the rotational velocity are independent \todoBoth{This is a bit odd, make sure I understand this}),
     $\m{K}_{0F,x}^k$ is the geometrical stiffness matrix corresponding to a unit force in the $x$ direction applied at the node $k$ along the body. 
 % 
 We note that the terms $\m{K}_{0*}$ have different units, for instance the terms $\m{K}_{0t,*}$ are expressed in \unit{N\cdot s^2 \cdot m^{-2}} .
@@ -1546,7 +1558,10 @@ In such formulation, the linear rotation field is obtained as $\m{I}+\m{\widetil
 
 \subsection{Taylor expansion}
 \label{sec:TaylorExpansion}
-\todo{I'll rewrite this section}
+
+\todoEmmanuel{I'll rewrite this section based on our improved understanding of the Taylor expansion
+Start by mentioning that the general integrals are valid when using integrals over the displaced body mass. Since we know the displacement field, we can factor the terms in front of the $q_e$.}
+\todoEmmanuel{
 The order of expansion of the displacement field leads to alternative formulations.
 In \cite{shabana:book} and \cite{branlard:2019flex} a zeroth order expansion is used:
  $\v{u}=\sum_j [\m{\Phi}^0_j]q_{e,j}$
@@ -1565,11 +1580,12 @@ The subtlety lays in the fact that the ``$1$'' terms will be different if the di
 Some terms involving $\m{\Phi}^1_{jk}$ will be present in the latter case.
 The reader is referred to \cite{Wallrapp:1993} for a full description of the Taylor-expanded terms.
 Setting $\m{\Phi}^1_{jk}=0$ in these expressions will lead to the 0th-order shape integral approach of Shabana.
+}
 
 
-\weird{
-See \autoref{sec:GeometricalStiffness}.
-If a 1st order Taylor expansion is used (see Section XXX) for these different terms, then the unit geometrical stiffness matrix can directly be added to the first order terms since they are linear in the degrees of freedom $\v{q}_e$. For instance, let's assume that the mass matrix is given as a 1st order Taylor expansion: $\m{M}_{xe} = \m{M}_{xe}^0 + \m{M}_{xe}^1\v{q}_e$. Then the geometrical stiffening effect can directly be inserted into the first order term, such that $\m{M}_{xe}^1$ becomes $\m{M}_{xe}^1+\m{K}_{0t}$.
+\todoEmmanuel{
+The unit geometrical stiffness matrices (introduced in \autoref{sec:GeometricalStiffness}) can be directly integrated into the 1st order Taylor expansion terms..
+se different terms, then the unit geometrical stiffness matrix can directly be added to the first order terms since they are linear in the degrees of freedom $\v{q}_e$. For instance, let's assume that the mass matrix is given as a 1st order Taylor expansion: $\m{M}_{xe} = \m{M}_{xe}^0 + \m{M}_{xe}^1\v{q}_e$. Then the geometrical stiffening effect can directly be inserted into the first order term, such that $\m{M}_{xe}^1$ becomes $\m{M}_{xe}^1+\m{K}_{0t}$.
 Similarly, the term $\m{K}_{0r}$ can be inserted into $\m{M}_{\theta e}^1$, $\m{K}_{0\omega}$ into $\m{O}_e^1$, $\m{K}_{0F}$ into $\m{\Phi}^1$ and $\m{K}_{0\tau}$ into $\m{\Psi}^1$ in the calculation of the generalized forces. 
 The different contributions are summarized in table 6.9 of the book of Schwertassek and Wallrapp \cite{Schwertassek:book}.
 }
@@ -1578,7 +1594,7 @@ The different contributions are summarized in table 6.9 of the book of Schwertas
 
 
 \subsection{Partial loads}
-\todo{Write this section once we understand the partial load approach}
+\todoBoth{Write this section once we understand the partial load approach}
 
 \cite{openfast}
 
