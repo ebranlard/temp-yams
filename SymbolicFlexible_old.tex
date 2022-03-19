@@ -917,7 +917,7 @@ The $4\%$ error in the pitch frequency appears reasonable in view of the approxi
 \section{Discussions}
 
 
-\subsection{Applications}
+\subsection{Applications and advantages of the method}
 \label{sec:Applications}
 The implementation of the symbolic YAMS library was originally motivated by the need to obtain a simple linearized model of a floating wind turbine for frequency domain simulations.
 The potential applications of the framework are yet multiple:
@@ -1368,6 +1368,7 @@ Examples of applications are given in \autoref{sec:RotatingBlade} and \autoref{s
 Different formulations of flexible multibody dynamics are found in the literature.
 Some of the alternatives are briefly discussed in this section.
 
+\subsection{Jacobian and velocity transformation matrix}
 In \autoref{eq:frstarRigid}, the Jacobian terms $\v{J}$ and the virtual work are expressed in vector form.
 In such form, there is no need to precise in which coordinate system the different vectors are expressed.
 This is convenient to reduce the size of the expressions when using symbolic calculations.
@@ -1386,6 +1387,8 @@ Some implementation choices are needed depending if these matrices are expressed
     In the same reference, recursive relationships are given for tree-like assembly of bodies, to help express the Jacobian matrices of each body recursively, based on the matrices of the parent body.
     It is also noted that the quadratic velocity terms, $\v{k}_\omega$, can be obtained using the time derivative of the Jacobian matrix.
 
+
+\subsection{Rotations and torsion}
 In this article, we have not explicitly written the rotational impact of the shape functions.
 In most applications, bodies are connected at their extremities and the deflection slope at a body extremity will induce a rotation of the subsequent body.
 The deflection slope can be obtained form the knowledge of the shape functions.
@@ -1394,6 +1397,8 @@ A formalism of rotations of bodies connected at their extremities is given in \c
 A more general formulation, introducing shape function rotations $\m{\Psi}$, is given in \citep{Wallrapp:1994, Schwertassek:book, Lemmer:2018}.
 In such formulation, the linear rotation field is obtained as $\m{I}+\m{\widetilde{\m{\Psi}\v{q}}}$, where $\m{I}$ is the identity matrix.
 
+\subsection{Taylor expansion}
+\label{sec:TaylorExpansion}
 The order of expansion of the displacement field leads to alternative formulations.
 In \cite{shabana:book} and \cite{branlard:2019flex} a first order expansion is used:
  $\v{u}=\sum_j [\m{\Phi}^0_j]q_{e,j}$
