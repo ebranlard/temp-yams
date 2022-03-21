@@ -6,7 +6,9 @@
 *.pdf
 *.gz
 figs_svgtex/
+figs/*.tex
 tags
 _misc*
 *-diff.*
 _*
+*typos.tex

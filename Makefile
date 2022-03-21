@@ -2,11 +2,11 @@ MAIN=SymbolicFlexible
 WINDOWS=1
 
 SVGDIR=svg
-SVGOUTDIR=figs_svg
+SVGOUTDIR=figs
 
 SVGTEXDIR=svgtex
 
-SVGTEXOUTDIR=figs_svgtex
+SVGTEXOUTDIR=figs
 SVGTEXS=$(notdir $(wildcard $(SVGTEXDIR)/*.svg))
 SVGTEXS2PDFS=$(patsubst %,$(SVGTEXOUTDIR)/%,$(SVGTEXS:.svg=.pdf))
 SVGS=$(notdir $(wildcard $(SVGDIR)/*.svg))
