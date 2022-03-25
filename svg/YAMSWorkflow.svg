@@ -22,13 +22,13 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.49497475"
-     inkscape:cx="1038.4368"
-     inkscape:cy="439.41635"
+     inkscape:zoom="0.7"
+     inkscape:cx="426.42857"
+     inkscape:cy="443.57143"
      inkscape:document-units="px"
      inkscape:current-layer="layer3"
      showgrid="false"
-     inkscape:snap-global="true"
+     inkscape:snap-global="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
@@ -841,6 +841,11 @@
      inkscape:label="Text"
      style="display:inline">
     <path
+       style="fill:none;stroke:#000000;stroke-width:3.00001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
+       d="M 953.88162,1371.3442 H 1063.4917"
+       id="path317815"
+       inkscape:connector-curvature="0" />
+    <path
        style="fill:none;stroke:#000000;stroke-width:2.99999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker6266)"
        d="M 1700.9196,1371.3442 H 1827.807"
        id="path342957"
@@ -890,7 +895,7 @@
        y="1648.1813"
        x="1074.7509"
        height="339.30099"
-       width="625.81494"
+       width="625.815"
        id="rect1287"
        style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     <text
@@ -918,7 +923,7 @@
        xml:space="preserve"
        id="flowRoot1544"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:middle;display:inline;fill:#3d9956;fill-opacity:1;stroke:none"
-       transform="translate(631.15976,1339.2181)"><flowRegion
+       transform="translate(625.15976,1339.2181)"><flowRegion
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3d9956"
          id="flowRegion1540"><rect
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.66666603px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#3d9956"
@@ -928,7 +933,7 @@
            x="477.14285"
            y="483.6366" /></flowRegion><flowPara
          id="flowPara1542"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1">Non-linear equations of motion</flowPara></flowRoot>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1">Nonlinear equations of motion</flowPara></flowRoot>
     <flowRoot
        transform="translate(603.30477,1380.0549)"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:middle;display:inline;fill:#3d9956;fill-opacity:1;stroke:none"
@@ -1023,7 +1028,7 @@
        y="1308.8933"
        x="455.10614"
        height="124.09135"
-       width="497.52548"
+       width="504.59656"
        id="rect1248-6-4"
        style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     <flowRoot
@@ -1160,29 +1165,29 @@
        transform="translate(27.71428,23.50979)"><tspan
          x="1149.1173"
          y="1290.8163"
-         id="tspan385489">System parameters <tspan
+         id="tspan10949">System parameters <tspan
    style="font-weight:bold;-inkscape-font-specification:'sans-serif Bold'"
-   id="tspan385487">p</tspan>: 
+   id="tspan10947">p</tspan>: 
 </tspan><tspan
          x="1149.1173"
          y="1324.1496"
-         id="tspan385491">- Geometrical parameters
+         id="tspan10951">- Geometrical parameters
 </tspan><tspan
          x="1149.1173"
          y="1357.483"
-         id="tspan385493">- Rigid body inertias
+         id="tspan10953">- Rigid body inertias
 </tspan><tspan
          x="1149.1173"
          y="1390.8164"
-         id="tspan385495">- Flexible bodies parameters (SID)
+         id="tspan10955">- Flexible body parameters (SID)
 </tspan><tspan
          x="1149.1173"
          y="1424.1498"
-         id="tspan385497">    (obtained using FEM or 
+         id="tspan10957">    (obtained using FEM or 
 </tspan><tspan
          x="1149.1173"
          y="1457.4831"
-         id="tspan385499">    shape function integrals)
+         id="tspan10959">    shape function integrals)
 </tspan></text>
     <text
        xml:space="preserve"
@@ -1243,7 +1248,7 @@
          sodipodi:role="line"
          id="tspan152597"
          x="1096.5895"
-         y="1802.447">Determine equations of motions</tspan><tspan
+         y="1802.447">Determine equations of motion</tspan><tspan
          sodipodi:role="line"
          x="1096.5895"
          y="1835.7804"
@@ -1281,21 +1286,21 @@
     <text
        xml:space="preserve"
        style="font-size:26.6667px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px"
-       x="712.08148"
+       x="714.08148"
        y="1347.5626"
        id="text222690"><tspan
          sodipodi:role="line"
-         x="712.08148"
+         x="714.08148"
          y="1347.5626"
          id="tspan222692"
          style="font-weight:bold;text-align:center;text-anchor:middle">Numerical inputs</tspan><tspan
          sodipodi:role="line"
-         x="712.08148"
+         x="714.08148"
          y="1380.896"
          id="tspan227633"
          style="text-align:center;text-anchor:middle">User inputs or wind turbine input </tspan><tspan
          sodipodi:role="line"
-         x="712.08148"
+         x="714.08148"
          y="1414.2294"
          style="text-align:center;text-anchor:middle"
          id="tspan258922">files (OpenFAST or similar)</tspan></text>
@@ -1305,37 +1310,37 @@
        y="1550.0665"
        x="455.10614"
        height="166.94849"
-       width="497.52548"
+       width="502.56894"
        id="rect260064"
        style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:2.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     <text
        xml:space="preserve"
        style="font-size:26.6667px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px"
-       x="704.98212"
+       x="708.98212"
        y="1590.1646"
        id="text260072"><tspan
          sodipodi:role="line"
-         x="704.98212"
+         x="708.98212"
          y="1590.1646"
          id="tspan260066"
          style="font-weight:bold;text-align:center;text-anchor:middle">Conceptual model</tspan><tspan
          sodipodi:role="line"
-         x="704.98212"
+         x="708.98212"
          y="1623.4979"
          style="text-align:center;text-anchor:middle"
          id="tspan263116">Assembly of bodies with </tspan><tspan
          sodipodi:role="line"
-         x="704.98212"
+         x="708.98212"
          y="1656.8313"
          style="text-align:center;text-anchor:middle"
          id="tspan265682">connections, external loads (<tspan
    style="font-weight:bold"
    id="tspan291171">u</tspan>) </tspan><tspan
          sodipodi:role="line"
-         x="704.98212"
+         x="708.98212"
          y="1690.1647"
          style="text-align:center;text-anchor:middle"
-         id="tspan282646">and selected degres of freedom (<tspan
+         id="tspan282646">and selected degrees of freedom (<tspan
    style="font-weight:bold"
    id="tspan285386">q</tspan>)</tspan></text>
     <text
@@ -1357,11 +1362,6 @@
        id="path317813"
        d="m 1017.4279,1468.6844 v 339.0743"
        style="fill:none;stroke:#000000;stroke-width:2.99999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:3.00001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
-       d="M 953.88162,1371.3442 H 1063.4917"
-       id="path317815"
-       inkscape:connector-curvature="0" />
     <flowRoot
        transform="translate(724.41939,1179.6867)"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;line-height:1.25;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;baseline-shift:baseline;text-anchor:middle;display:inline;fill:#3d9956;fill-opacity:1;stroke:none"
@@ -1405,7 +1405,7 @@
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1"
          id="flowPara336134" /><flowPara
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
-         id="flowPara336144">Non-linear code: mass matrix and forcing</flowPara><flowPara
+         id="flowPara336144">Nonlinear code: mass matrix and forcing</flowPara><flowPara
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26.6667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1"
          id="flowPara344255">(functions of <flowSpan
    style="font-weight:bold;text-align:start;text-anchor:start"
@@ -1453,31 +1453,31 @@
        transform="translate(733.40815,-16.41243)"><tspan
          x="1149.1173"
          y="1290.8163"
-         id="tspan385501">- Time integration
+         id="tspan10961">- Time integration
 </tspan><tspan
          x="1149.1173"
          y="1324.1496"
-         id="tspan385503">- Stability analyses
+         id="tspan10963">- Stability analyses
 </tspan><tspan
          x="1149.1173"
          y="1357.483"
-         id="tspan385505">- Frequency domain analyses
+         id="tspan10965">- Frequency domain analyses
 </tspan><tspan
          x="1149.1173"
          y="1390.8164"
-         id="tspan385507">- Control design and tuning
+         id="tspan10967">- Control design and tuning
 </tspan><tspan
          x="1149.1173"
          y="1424.1498"
-         id="tspan385509">- State observers
+         id="tspan10969">- State observers
 </tspan><tspan
          x="1149.1173"
          y="1457.4831"
-         id="tspan385511">- Digital twins
+         id="tspan10971">- Digital twins
 </tspan><tspan
          x="1149.1173"
          y="1490.8165"
-         id="tspan385513">- ...
+         id="tspan10973">- ...
 </tspan></text>
   </g>
 </svg>
