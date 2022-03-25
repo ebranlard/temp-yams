@@ -229,7 +229,7 @@ where $\v{r}_i$, $\v{v}_i$, and $\v{a}_i$ are the position, velocity, and accele
 Throughout the article, we use bold symbols for vectors and matrices, and uppercase symbols for most matrices.
 The elastic displacement is obtained as a superposition of elastic deformations (see~\autoref{sec:flexiblebodies}).
 We define the transformation matrix $\m{R}_i$ that transforms coordinates from the body frame to the inertial frame, and by definition
-$[\v{\tilde{{\omega}}}_i] = \v{\dot{R}}_i\v{R}_i^T$, where $[\tilde{\ \ }]$ represents the skew symmetric matrix, and $^T$ denote the matrix transpose. 
+$[\v{\tilde{{\omega}}}_i] = \v{\dot{R}}_i\v{R}_i^T$, where $[\tilde{\ \ }]$ represents the skew symmetric matrix, and the exponent $T$ denotes the matrix transpose. 
 We assume that vectors are represented as column vectors to conveniently introduce matrix-vector multiplications.
 We use the notation ``$\cdot$'' to indicate the dot product between two vectors (irrespective of their column or row representation).
 
@@ -745,12 +745,12 @@ $M_e=\int_0^{L_T} m(z) \Phi_1^2(z) dz$
     $D_e= 2 \zeta M_e \omega_e$.
 % \end{align}
 where $m(z)$ and $EI(z)$ are the mass per length and bending stiffness of the tower, respectively, and $\omega_e$  and $\zeta$ are the frequency and damping ratio, respectively, associated with the shape function (assuming the shape function approximates a mode shape).
-The geometric softening of the tower due to the tower-top mass ($K_{gt}$) and its own weight $(K_{gs}$) is obtained using \autoref{eq:StiffnessAxial}, as $K_g= K_{gt}+K_{gs}$, with :
+The geometric softening of the tower due to the tower-top mass ($K_{gt}$) and its own weight $(K_{gw}$) is obtained using \autoref{eq:StiffnessAxial}, as $K_g= K_{gt}+K_{gw}$, with :
 \begin{align}
   K_{gt}&=- g \int_0^{L_T} (M_{R}+M_N)\left[\frac{d\Phi_1}{dz}(z)\right]^2\, dz
      \\
      % ,\quad
-  K_{gs}&=- g \int_0^{L_T} \left[\frac{d\Phi_1}{dz}(z)\right]^2 \left[\int_z^{L_T} m(z')\,dz' \right]  \, dz
+  K_{gw}&=- g \int_0^{L_T} \left[\frac{d\Phi_1}{dz}(z)\right]^2 \left[\int_z^{L_T} m(z')\,dz' \right]  \, dz
       %\label{eq:}
 \end{align}
 The shape function frequency is obtained as:
@@ -880,10 +880,10 @@ The slopes of the shape functions at the tower top are key coupling parameters o
 The aerodynamic thrust and torque are noted $f_a$ and $\tau_a$, acting at point $R$.
 The distributed loads on the tower, $p_x$ and $p_y$ (from aerodynamics and hydrodynamics), are projected against the shape functions to obtain the generalized forces $f_{e1}=\int \Phi_1 p_x dz$ and  $f_{e2}=\int \Phi_2 p_y dz$. 
 The moments of inertia of the rotor in its coordinates are $(J_{x,R}, J_{\oplus,R}, J_{\oplus,R})$.
-We note that $\m{M}_e, \m{K}_e, and \m{D}_e$ are the generalized mass, stiffness, and damping, respectively, associated with a given shape function (e.g., $M_{e11}=\int \Phi_1^2 m(z) dz$, where $m$ is the mass per length of the tower). 
+We note that $\m{M}_e$, $\m{K}_e$, and $\m{D}_e$ are the generalized mass, stiffness, and damping, respectively, associated with a given shape function (e.g., $M_{e11}=\int \Phi_1^2 m(z) dz$, where $m$ is the mass per length of the tower). 
 % More details on the shape function approach can be found in previous work~\citep{branlard:2019flex}. 
 The application of the symbolic framework leads to the equations of motion given in Appendix \ref{sec:Onshore3DOFEq}.
-To simplify the equations and limit their length when printing them in this article, we have applied a first-order small-angle approximation for $\theta_t$, and a second-order approximatio for $\nu_x$ and $\nu_y$.
+To simplify the equations and limit their length when printing them in this article, we have applied a first-order small-angle approximation for $\theta_t$, and a second-order approximation for $\nu_x$ and $\nu_y$.
 It is observed from \autoref{eq:GMEx1} that a first-order approximation for $\nu_y$ would have removed the influence of the rotor and nacelle $y$-inertia on the generalized mass associated with the tower fore-aft bending. 
 
 We performed a time simulation of the model using both our symbolic framework YAMS and OpenFAST.
