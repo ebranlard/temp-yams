@@ -1646,11 +1646,44 @@ The resulting equations of motion are still expressed using shape integrals of t
 
 \subsection{Partial loads}
 \label{sec:PartialLoads}
-The ElastoDyn module of OpenFAST~\citep{OpenFAST} uses the so-called partial loads approach to implement the equations of motion and does not use shape integrals.
-The underlying theory used to derive the underlying equations is the same as Kane's formalism presented in \autoref{sec:method}.
-An aeroelastic code determines the states of the system as well as various outputs, such as reaction loads, section loads, and integrated loads at various points of the system.
-The determination of the outputs requires similar terms than the ones involved in the equations of motion. 
-The partial loads approach takes advantage of this. More details are found in the ElastoDyn documentation~\citep{OpenFAST}. Similar concepts are found in the work of \citet{Blajer:2005AnAS}.
+The ElastoDyn module of OpenFAST~\citep{OpenFAST} uses the so-called ``partial loads'' approach to implement the equations of motion.
+The underlying theory used to derive the equations of motion is the same as Kane's formalism presented in \autoref{sec:method}, but the partial load approach takes advantage of the fact that the computation of reaction loads requires similar terms than the ones needed for the equations of motion.
+The constraints equations are inherently present in the equations of motion because a minimal set of coordinates is used. From a tree-like structure (like a horizontal axis wind turbine), there is a natural relationship between the reaction loads in the structure and the degrees of freedom. A virtual displacement of a given degree of freedom will only displace the structure above it. The equation of motion of this degree of freedom can therefore be obtained from the virtual work of the reaction loads at a point located ``after'' the degree of freedom (as if the entire structure above was replaced by lumped loads).
+The reaction loads contains contributions from the external loads above the point in consideration, but also inertial and gyroscopic loads associated with all the degrees of freedom of the system (not only the ones above or below the point considered). 
+Internal loads associated with the degree of freedom (e.g., the elastic forces for a flexible body, or the spring constant for a degree of freedom representing a rigid joint) need to be added as external forces because they are conceptually ``before'' the point in question.
+%Kane's equation can be applied at any points of a system, not only the center of masses of the body. 
+We write $P$ the point located after a given degree of freedom $j$. The equation of motion for this degree of freedom is obtained as if the system was isolated as follows:
+\begin{align}
+   0 = \m{J}_{v,jP} \cdot \v{f}_P + \m{J}_{\omega,jP} \cdot \v{\tau}_P + f_{e,j}
+       %label{eq:}
+    \label{eq:PartialLoadsA}
+\end{align}
+where: $\m{J}_{v,jP}$ and $\m{J}_{\omega,jP}$ are the partial velocities of point $P$ with respect to the degree of freedom $j$;  $\v{f}_P$ and $\v{\tau}_P$ are the reaction loads from the rest of the structure ``after'' the degree of freedom $j$, and $f_{e,j}$ is the generalized load associated with the isolated degree of freedom $j$.
+The reaction loads can be decomposed into terms that are proportional to the accelerations and additional terms:
+\begin{align}
+\v{f}_P = \sum_r  \v{f}_{P,r} \ddot{q}_r + \v{f}_{P,t}
+    ,\qquad
+\v{f}_P = \sum_r  \v{\tau}_{P,r} \ddot{q}_r + \v{\tau}_{P,t}
+    \label{eq:PartialLoadsB}
+\end{align}
+The terms $\v{f}_{P,r}$ and $\v{\tau}_{P,r}$ are referred to as ``partial loads''.
+% 
+Combining \autoref{eq:PartialLoadsA} and \autoref{eq:PartialLoadsB}, the term $jr$ of the mass matrix and the term $j$ of the right hand side of the equation of motion (\autoref{eq:NonLinearEOM}) are then obtained as:
+\begin{align}
+  M_{jr} =
+     - \m{J}_{v,jP} \cdot \v{f}_{P,r}  
+     - \m{J}_{\omega,jP} \cdot \v{\tau}_{P,r}
+      ,\qquad
+    F_j =  \m{J}_{v,jP}\cdot\v{f}_{P,t} + \m{J}_{\omega,jP} \cdot \v{\tau}_{P,t} + f_{e,j}
+      \label{eq:PartialLoadsC}
+\end{align}
+It is therefore seen that the knowledge of the partial loads and the partial velocities at key points of the structure (typically, points where user outputs are desired) can be used to obtain the reaction loads (\autoref{eq:PartialLoadsB}) and the equations of motion (\autoref{eq:PartialLoadsC}).
+% and the some terms are repeated when computing the reaction loads.
+% An aeroelastic code determines the states of the system as well as various outputs, such as reaction loads, section loads, and integrated loads at various points of the system.
+% The determination of the outputs requires similar terms than the ones involved in the equations of motion. 
+% The partial loads approach takes advantage of this. 
+% 
+This is the approach used by ElastoDyn, and the reader is referred to the notes provided in the online documentation~\citep{OpenFAST}. Similar concepts are found in the work of \citet{Blajer:2005AnAS}.
 
 
 % \todoBoth{Write this section once we understand the partial load approach}
