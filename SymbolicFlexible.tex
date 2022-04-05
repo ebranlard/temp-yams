@@ -1442,7 +1442,7 @@ The fact that an axial load leads to a stiffness term is referred to as ``geomet
 \label{sec:GeometricalStiffness}
 \subsection{General treatment}
 Geometric stiffness refers to the apparent change of stiffness of a structure depending on the loading it is subject to.
-
+% 
 In this section, we present a linear formulation of geometric stiffness for a flexible body undergoing motion and subject to arbitrary loading, inspired by \cite{Schwertassek:book}. 
 Additional details may be found in \cite{Wallrapp:1991}.
 The main component of the geometric stiffening term $\v{k}_\sigma$ can be written:
@@ -1564,7 +1564,7 @@ Because of the linearity with respect to the acceleration, rotational velocities
 \section{Alternative formulations}
 \label{sec:AlternativeFormulations}
 
-Different formulations of flexible multibody dynamics are found in the literature.
+Different formulations of flexible multibody dynamics using shape functions are found in the literature.
 Some of the alternatives are briefly discussed in this section.
 
 
@@ -1600,7 +1600,7 @@ In such a formulation, the linear rotation field is obtained as $\m{I}+\m{\widet
 
 \subsection{Shape integrals and Taylor expansion}
 \label{sec:TaylorExpansionShapeIntegrals}
-The results presented in \autoref{sec:FlexibleDefinitions} consist of integrals over the displaced points of the structure, $\v{s}_P=\s_{P_0} + \v{u}$, where the displacement field is $\v{u}=\m{\Phi} \v{q}_e$. The undeflected position of the structure ($\v{s}_{P_0}$) is constant, and the shape functions are known at the initialization; the only time-varying terms are the degrees of freedom $\v{q}_e$. Therefore, the integrals can be precomputed terms by decomposing them into a constant part and a part that is linear with respect to the degrees of freedom $\v{q}_e$. The precomputed integrals are referred to as ``shape integrals.'' For a given term $\v{T}$ (standing, for instance, for $\m{M}_{\theta,\theta}$, $\m{C}_t$, $\m{C}_r$, $\v{G}_r$, $\v{G}_e$, or $\v{O}_e$), the shape integral expansion is:
+The results presented in \autoref{sec:FlexibleDefinitions} consist of integrals over the displaced points of the structure, $\v{s}_P=\s_{P_0} + \v{u}$, where the displacement field is $\v{u}=\m{\Phi} \v{q}_e$. The undeflected position of the structure ($\v{s}_{P_0}$) is constant, and the shape functions are known at the initialization; the only time-varying terms are the degrees of freedom $\v{q}_e$. Therefore, the integrals can be precomputed by decomposing them into a constant part and a part that is linear with respect to the degrees of freedom $\v{q}_e$. The precomputed integrals are referred to as ``shape integrals.'' For a given term $\v{T}$ (standing, for instance, for $\m{M}_{\theta,\theta}$, $\m{C}_t$, $\m{C}_r$, $\v{G}_r$, $\v{G}_e$, or $\v{O}_e$), the shape integral expansion is:
 \begin{align}
 \m{T}(\v{q}_e) = \m{T}^0 
     + \sum\limits_{j=1..n_e} \m{T}^1_j q_{e,j}
@@ -1643,33 +1643,33 @@ The resulting equations of motion are still expressed using shape integrals of t
 % }
 
 % \todoBoth{As you already mentioned: using first-order expansions of the shape functions automatically introduces geometric stiffening, unifying the two formerly/appearantly distict aspects.}
-\clearpage
-\subsection{Partial loads}
+\subsection{ElastoDyn and the partial loads approach}
 \label{sec:PartialLoads}
 The ElastoDyn module of OpenFAST~\citep{OpenFAST} uses the so-called ``partial loads'' approach to implement the equations of motion.
-The underlying theory used to derive the equations of motion is the same as Kane's formalism presented in \autoref{sec:method}, but the partial load approach takes advantage of the fact that the calculation of reaction loads or point loads at body extremities requires similar terms than the ones needed for the equations of motion.
+The underlying theory used to derive the equations of motion is the same as Kane's formalism presented in \autoref{sec:method}, but the partial load approach takes advantage of the fact that the calculation of reaction loads or point loads at body extremities requires similar terms to the ones needed for the equations of motion.
 % The constraints equations are inherently present in the equations of motion because a minimal set of coordinates is used. 
 In the discussion below, we assume that the different bodies of the structure form a tree structure with the root at the bottom and the leaves above.
 For a tree-like structure, there is a natural relationship between loads in the structure and the degrees of freedom.
-A virtual displacement of a given degree of freedom will only displace the structure above it. The equation of motion of this degree of freedom can therefore be obtained from the virtual work of the  loads at a point located just above the degree of freedom (as if the entire structure above was replaced by lumped loads).
-The point loads contain contributions from the external loads above the point in consideration, but also inertial and gyroscopic loads associated with all the degrees of freedom of the system (not only the ones above or below the point considered). If the point is at a joint, the loads corresponds to the reaction loads at this point.
+A virtual displacement of a given degree of freedom will only displace the structure above it. The equation of motion of this degree of freedom can therefore be obtained from the virtual work of the  loads at a point located just above the degree of freedom, as if the entire structure above was replaced by lumped loads.
+The point loads contain contributions from the external loads above the point in consideration, but also inertial and gyroscopic loads associated with all the degrees of freedom of the system. If the point is at a joint, the loads corresponds to the reaction loads at this point.
 % General loads associated with the degree of freedom  need to be added in the equilibrium equation.
 %Kane's equation can be applied at any points of a system, not only the center of masses of the body. 
 We write $P$ the point located after a given degree of freedom $r$. The equation of motion for this degree of freedom is obtained as if the system was isolated:
 \begin{align}
-   0 = \m{J}_{v_P,r} \cdot \v{f}_P + \m{J}_{\omega_P,r} \cdot \v{\tau}_P + f_{e,r}
+   \kanef_r + \kanef_r^* =  0 = \m{J}_{v_P,r} \cdot \v{f}_P + \m{J}_{\omega_P,r} \cdot \v{\tau}_P + h_{r}
        %label{eq:}
     \label{eq:PartialLoadsA}
 \end{align}
-where: $\m{J}_{v_P,r}$ and $\m{J}_{\omega_P,r}$ are the partial velocities of point $P$ with respect to the degree of freedom $r$;  $\v{f}_P$ and $\v{\tau}_P$ are 3-vectors containing the force and torque from the structure above the degree of freedom $r$; and $f_{e,r}$ is the generalized load associated with the isolated degree of freedom $r$ (e.g., the elastic loads for a flexible body, or the spring and damping loads for a degree of freedom representing a joint).  
+where: $\m{J}_{v_P,r}$ and $\m{J}_{\omega_P,r}$ are the partial velocities of point $P$ with respect to the degree of freedom $r$;  $\v{f}_P$ and $\v{\tau}_P$ are 3-vectors containing the force and torque from the structure above the degree of freedom $r$ (including external and inertial contributions); and $h_{r}$ is the generalized load associated with the isolated degree of freedom $r$ (e.g., the elastic loads for a flexible body, or the spring and damping loads for a degree of freedom representing a joint).  
+% The point loads $\v{f}_P$ and $\v{\tau}_P$ can be computed by summing all the external forces above the point
 The point loads $\v{f}_P$ and $\v{\tau}_P$ can be decomposed into terms that are proportional to the accelerations of all the degrees of freedom (indexed with $r$) and additional terms (labeled ``$t$''):
 \begin{align}
-\v{f}_P = \sum_r  \v{f}_{P,r} \ddot{q}_r + \v{f}_{P,t}
+\v{f}_P = \sum\limits_{j=1}^{n_q}     \v{f}_{P,j} \ddot{q}_j + \v{f}_{P,t}
     ,\qquad
-\v{\tau}_P = \sum_r  \v{\tau}_{P,r} \ddot{q}_r + \v{\tau}_{P,t}
+\v{\tau}_P = \sum\limits_{j=1}^{n_q}  \v{\tau}_{P,j} \ddot{q}_j + \v{\tau}_{P,t}
     \label{eq:PartialLoadsB}
 \end{align}
-The terms $\v{f}_{P,r}$ and $\v{\tau}_{P,r}$ are 3-vectors; they are seen to act as generalized masses and they are referred to as ``partial loads''. 
+The terms $\v{f}_{P,r}$ and $\v{\tau}_{P,r}$ act as generalized masses and they are referred to as ``partial loads''. 
 % 
 Combining \autoref{eq:PartialLoadsA} and \autoref{eq:PartialLoadsB}, the term $rj$ of the mass matrix and the term $r$ of the right hand side of the equation of motion (\autoref{eq:NonLinearEOM}) are obtained as:
 \begin{align}
@@ -1677,18 +1677,18 @@ Combining \autoref{eq:PartialLoadsA} and \autoref{eq:PartialLoadsB}, the term $r
      - \m{J}_{v_P,r} \cdot \v{f}_{P,j}  
      - \m{J}_{\omega_P,r} \cdot \v{\tau}_{P,j}
       ,\qquad
-    F_r =  \m{J}_{v_P,r}\cdot\v{f}_{P,t} + \m{J}_{\omega_P,r} \cdot \v{\tau}_{P,t} + f_{e,r}
+    F_r =  \m{J}_{v_P,r}\cdot\v{f}_{P,t} + \m{J}_{\omega_P,r} \cdot \v{\tau}_{P,t} + h_{r}
       \label{eq:PartialLoadsC}
 \end{align}
-It is therefore seen that the knowledge of the partial loads and the partial velocities at key points of the structure (typically, points where user outputs are desired) can be used to obtain the reaction loads (\autoref{eq:PartialLoadsB}) and the equations of motion (\autoref{eq:PartialLoadsC}).
+Therefore, the knowledge of the partial loads and the partial velocities at key points of the structure (typically, points where user outputs are desired) can be used to obtain the reaction loads (\autoref{eq:PartialLoadsB}) and the equations of motion (\autoref{eq:PartialLoadsC}).
 % and the some terms are repeated when computing the reaction loads.
 % An aeroelastic code determines the states of the system as well as various outputs, such as reaction loads, section loads, and integrated loads at various points of the system.
 % The determination of the outputs requires similar terms than the ones involved in the equations of motion. 
 % The partial loads approach takes advantage of this. 
 % 
-This is the approach used in ElastoDyn: the loads at key points of the structure were derived using hand calculations, and then the partial loads were used for the implementation of the outputs and the equations of motion. The reader is referred to the notes provided in the online documentation of ElastoDyn for more details~\citep{OpenFAST}. A general procedure to obtain partial loads would be beyond the scope of this article. 
+This is the approach used in ElastoDyn: the loads at key points of the structure were derived using hand calculations, and then the partial loads were used for the implementation of the outputs and the equations of motion. The reader is referred to the notes provided in the online documentation of ElastoDyn for more details~\citep{OpenFAST}. A general procedure to obtain partial loads can be devised (using kinematics to find velocities and acceleration in the structure, and computing the loads from the tree top to the root), but would be beyond the scope of this article. 
 %Similar concepts are found in the work of \citet{Blajer:2005AnAS}.
-\clearpage
+% \clearpage
 
 
 % \todoBoth{Write this section once we understand the partial load approach}
