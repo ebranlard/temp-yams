@@ -157,9 +157,10 @@ We implemented an open-source version in Python using SymPy~\citep{sympy},  leve
 Alternative symbolic frameworks found in the literature are usually limited to rigid bodies \citep{Verlinden:2005,Kurtz:2009,Gede:2013,Docquier:2013} or are closed-source~\citep{Autolev,NeweulM2,MotionGenesis} and cannot be directly processed in Python. 
 
 Kane's method and the nonlinear shape function approach presented in this article do not represent the state of the art of multibody dynamics with flexible bodies. 
-The geometrically exact beam theory \citep{Simo:1985,Jelenic:1999,Geradin:2001:book,Bauchau:2011:book} is more precise than the shape function approach. 
+The geometrically exact beam theory \citep{Simo:1985,Jelenic:1999,Geradin:2001:book,Bauchau:2011:book} is more precise than the shape function approach in that it represents the beam kinematics exactly.
+It is still possible though to derive the (linearized) shape function beam models used in our approach from geometrically exact beam models.
 Similarly, multipurpose multibody software exists \citep{Lange:2007}, such as ANSYS~\citep{ansys}, SIMPACK~\citep{simpack}, or MBDyn~\citep{MBDyn}. 
-These more advanced approaches target different applications than those envisioned in this study: they are suitable for numerical simulations, but they cannot provide simple and computationally efficient nonlinear and linear models.
+These more advanced approaches target different applications than those envisioned in this study: they are suitable for numerical simulations, but they cannot provide compact symbolic model equations.
 
 
 
@@ -647,6 +648,7 @@ The geometric stiffness contribution of the axial load is obtained from \autoref
 % 
 The geometric stiffness, $K_g$, is positive and increases with the square of the rotational speed. 
 This restoring effect is referred to as ``centrifugal stiffening.''
+Since, in this example, the beam is fixed except for a rotational degree of freedom, and no gravitity is assumed, all other stiffening influence can be neglected.
 The natural frequency of the blade will increase with the rotational speed as follows:
 \begin{align}
    \omega_0(\Omega)=\sqrt{\frac{(K_{e}+ K_g(\Omega))}{M_e}} 
@@ -988,6 +990,7 @@ For instance, implicit integrators with iterative Newton-Raphson-like solvers be
 %     \item The wall time is two order of magnitude faster despite using Python
 \item The generation of linearized models has a wide range of applications, such as linear time domain simulations, controller design and tuning, frequency domain analyses, stability analyses, state observers, or digital twins.
 The symbolic approach is severalfold faster than alternative approaches because it can be evaluated for all operating points at once, whereas other methods (e.g., OpenFAST, HAWCStab2) require multiple linearization calls.
+Also, model order reduction of the linearized models is not necessary, because our models already start out with a reduced number of degrees of freedom and modes for the flexible bodies.
 
 \item Analytical linearization with respect to parameters is directly obtained using our tool, which can be used for sensitivity analyses, parameter studies, optimizations, integrated design approaches, and controls co-design (e.g., using methods such as linear-matrix-inequality-based designs) \citep{Poschke:2020}.  Nonanalytical approaches require numerous linearizations and evaluations at various operating points \citep{Jonkman:2022lin}.
 
@@ -1477,6 +1480,7 @@ The matrices $\m{K}_{g*,\alpha}$ or $\m{K}_{g*,\alpha\beta}$ have the shape $n_e
 For instance, $\m{K}_{gt,z}$ is the geometric stiffness matrix corresponding to a unit acceleration in the $z$ direction, 
 $\m{K}_{g\omega,xy}^k$ is the geometric stiffness matrix corresponding to a unit gyration about the $x$ and $y$ directions, and
     $\m{K}_{gF,x}^k$ is the geometric stiffness matrix corresponding to a unit force in the $x$ direction applied at the node $k$ along the body. 
+In Kane's method, the motion of rigid bodies and of the reference frames of flexible bodies are considered with respect to an inertial frame of reference. Therefore corriolis forces are accounted for by the accelerations $a_\alpha$.
 % 
 We note that the terms $\m{K}_{g*}$ have different units; for instance, the terms $\m{K}_{gt,*}$ are expressed in \unit{N\cdot s^2 \cdot m^{-2}} .
 

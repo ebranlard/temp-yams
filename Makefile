@@ -1,5 +1,5 @@
 MAIN=SymbolicFlexible
-WINDOWS=1
+WINDOWS=0
 
 SVGDIR=svg
 SVGOUTDIR=figs
@@ -43,15 +43,15 @@ bibtex:
 figspdf: $(SVGOUTDIR) $(SVGTEXOUTDIR) $(SVGS2PDFS) $(SVGTEXS2PDFS)
 
 $(SVGTEXOUTDIR)/%.pdf:$(SVGTEXDIR)/%.svg 
-	$(INKSCAPE) -z -D -o "$(SVGTEXOUTDIR)/$*.pdf" --export-latex   "$<"
+	$(INKSCAPE) -D --export-pdf "$(SVGTEXOUTDIR)/$*.pdf" --export-latex   "$<"
+#	$(INKSCAPE) -z -D -o "$(SVGTEXOUTDIR)/$*.pdf" --export-latex   "$<"
 	$(MV) "$(SVGTEXOUTDIR)$(SLASH)$*.pdf_tex" "$(SVGTEXOUTDIR)$(SLASH)$*.tex"
-# 	$(INKSCAPE) -D --export-pdf "$(SVGTEXOUTDIR)/$*.pdf" --export-latex   "$<"
 # 	$(INKSCAPE) -z -D --file="$<" --export-pdf="$(SVGTEXOUTDIR)/$*.pdf" --export-latex
 # 	$(MV) "$(SVGTEXOUTDIR)$(SLASH)$*.pdf_tex" "$(SVGTEXOUTDIR)$(SLASH)$*.tex"
 
 $(SVGOUTDIR)/%.pdf: $(SVGDIR)/%.svg
-	$(INKSCAPE) -D -o "$@" "$<"
-# 	$(INKSCAPE) -D --export-pdf "$@" "$<"
+	$(INKSCAPE) -D --export-pdf "$@" "$<"
+#	$(INKSCAPE) -D -o "$@" "$<"
 # 	$(INKSCAPE) -D -A "$@" "$<"
  
 
