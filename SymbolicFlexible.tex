@@ -54,8 +54,8 @@
 % --------------------------------------------------------------------------------}
 % --- Front page
 % --------------------------------------------------------------------------------{
-\title{A symbolic framework for flexible multibody systems applied to horizontal-axis wind turbines}
-
+% \title{A symbolic framework for flexible multibody systems applied to horizontal-axis wind turbines}
+\title{A symbolic framework to obtain mid-fidelity models of flexible multibody systems with application to horizontal-axis wind turbines}
 
 \Author[1]{Emmanuel}{Branlard}
 \Author[2]{Jens Geisler}{}
@@ -82,14 +82,15 @@
 % --- Abstract
 % --------------------------------------------------------------------------------{
 \begin{abstract}
-The article presents a symbolic framework that is used to obtain the linear and nonlinear equations of motion of a multibody system including rigid and flexible bodies.
-    Our approach is based on Kane's method and a nonlinear shape function representation for flexible bodies.
-    The method yields compact symbolic equations of motion with implicit account of the constraints. 
+The article presents a symbolic framework (also called computer algebra program) that is used to obtain, in symbolic mathematical form, the linear and nonlinear equations of motion of a mid-fidelity multibody system including rigid and flexible bodies .
+Our approach is based on Kane's method and a nonlinear shape function representation for flexible bodies. 
+The shape function approach does not represent the state of the art for flexible multibody dynamics but is an effective trade-off to obtain mid-fidelity models with few degrees of freedom and taking advantage of the separation of space and time.
+The method yields compact symbolic equations of motion with implicit account of the constraints. 
 The general and automatic framework facilitates the creation and manipulation of models with various levels of fidelity.
 The symbolic treatment allows for analytical gradients and linearized equations of motion.
 The linear and nonlinear equations can be exported to Python code or dedicated software.
 There are multiple applications, such as time domain simulation, stability analyses, frequency domain analyses, advanced controller design, state observers, and digital twins.
-In this article, we describe the method we used to systematically generate the equations of motion of multibody systems.
+In this article, we describe the method we used to systematically generate the equations of motion of multibody systems, and present the implementation of the framework using the Python package SymPy.
 We apply the framework to generate illustrative land-based and offshore wind turbine models.
 We compare our results with OpenFAST simulations and discuss the advantages and limitations of the method.
 The Python implementation is provided as an open-source project. 
@@ -117,7 +118,7 @@ The Python implementation is provided as an open-source project.
 % --------------------------------------------------------------------------------{
 \introduction 
 
-The next generation of wind turbine digital technologies requires versatile aero-servo-hydro-elastic
+The next generation of wind turbine digital technologies and control systems require versatile aero-servo-hydro-elastic
 models, with various levels of fidelity, suitable for a wide range of applications. 
 Such applications include time domain simulations, linearization (for controller design and tuning, or frequency domain analyses), analytical gradients (for optimization procedures), and generation of dedicated, high-performance or embedded code (for stand-alone simulations, state observers or digital twins). 
 % A parameter identification from time-series data is not required (La Cavae et al., 2016),
@@ -131,19 +132,26 @@ Such applications include time domain simulations, linearization (for controller
 % • Further processing by specialized tools, e.g., for the generation of high performance NMPC code
 % such as acados (Verschueren et al., 2018)
 Current models are implemented for a specific purpose and are usually based on an heuristic structure.
-Aeroelastic tools, such as Flex~\citep{flexoye,branlard:2019flex} or ElastoDyn~\citep{OpenFAST}, rely on an assumed chain of connections between bodies, a given set of degrees of freedom, and predefined orientations of shape functions. 
+Aeroelastic tools, such as Flex~\citep{flexoye,branlard:2019flex} or ElastoDyn~\citep{OpenFAST}, rely on an assumed chain of connections between bodies, a given set of degrees of freedom, and predefined orientations of shape functions. It is not straightforward to extract reduced-order models from these tools or extend the models to additional degrees of freedom.
+
 
 
 Tools with linearization capabilities, such as HAWCStab2~\citep{Sonderby:2014} or OpenFAST~\citep{OpenFAST} are dedicated to horizontal-axis wind turbines, and the evaluation of the gradients are limited to hard-coded analytical expressions or numerical finite differences. 
-% TODO add more examples
 Small implementation changes often require extensive redevelopment, and the range of applications of the tools remains limited \citep{Simani:2015}.
+The linear models generated by these tools are numerical models that are evaluated for a given set of numerical input parameters. It is therefore difficult to obtain gradients of the linear models as function of the input parameters, an information which is becoming increasingly important in optimization frameworks and controls co-design approaches \citep{Jonkman:2022lin}.
+% impact of design parameter variations in the physical system
+% variation
+% Influence of parameters on linearized physics-based models
+
+
+% TODO add more examples
 
 % usually one-off developments for a specific purpose, that are often based on a heuristic
 %Small implementation changes often require an extensive redevelopment, and the range of applications of the tool remains limited. structure and only keep a lose connection to the underlying physics.
 
 
 
-To address this issue, we propose a framework for the automatic derivation, processing, and
+To address these issues, we propose a symbolic framework (also called a computer algebra program) for the automatic derivation, processing, and
 parameterization of models with granularity in the level of fidelity.
 Our approach is based on Kane’s method \citep{kane:1965} and a nonlinear shape function representation of flexible bodies \citep{shabana:book}
  described using a standard input data (SID) format \citep{Wallrapp:1994, Schwertassek:book}.
@@ -152,15 +160,18 @@ The method yields compact symbolic equations of motion with implicit account of 
 % OpenFAST.
 Similar approaches have been presented in the literature: \cite{Kurtz:2009}, \cite{Merz:2018}, \cite{Lemmer:2018}, and \cite{branlard:2019flex}.
 Our framework differs in the fact that all equations are processed at a symbolic level and therefore the model can be used in its nonlinear or linearized form. 
+The linear models are obtained analytically, they can be be evaluated for various set of input parameters directly, and therefore be used in optimization frameworks or controls co-design approaches.
 % We implemented an open-source versionne in Python, using Sympy~\citep{sympy} and leveraging its mechanical toolbox, and the other one in Maxima.
 We implemented an open-source version in Python using SymPy~\citep{sympy},  leveraging its mechanical toolbox.
-Alternative symbolic frameworks found in the literature are usually limited to rigid bodies \citep{Verlinden:2005,Kurtz:2009,Gede:2013,Docquier:2013} or are closed-source~\citep{Autolev,NeweulM2,MotionGenesis} and cannot be directly processed in Python. 
+Alternative symbolic frameworks found in the literature are usually limited to rigid bodies \citep{Verlinden:2005,Kurtz:2009,Gede:2013,Docquier:2013} or are closed-source or using proprietary software~\citep{Autolev,NeweulM2,MotionGenesis,Lemmer:2018}.
 
 Kane's method and the nonlinear shape function approach presented in this article do not represent the state of the art of multibody dynamics with flexible bodies. 
-The geometrically exact beam theory \citep{Simo:1985,Jelenic:1999,Geradin:2001:book,Bauchau:2011:book} is more precise than the shape function approach in that it represents the beam kinematics exactly.
-It is still possible though to derive the (linearized) shape function beam models used in our approach from geometrically exact beam models.
+The geometrically exact beam theory \citep{Simo:1985,Jelenic:1999,Geradin:2001:book,Bauchau:2011:book} is more precise than the shape function approach because it represents the beam kinematics exactly. 
+Linearization of the geometrical exact beam theory equations is possible and also more precise than the shape function approach but it leads to larger and more involved expressions.
+% with more degrees of freedom.
+% It is still possible though to derive the (linearized) shape function beam models used in our approach from geometrically exact beam models.
 Similarly, multipurpose multibody software exists \citep{Lange:2007}, such as ANSYS~\citep{ansys}, SIMPACK~\citep{simpack}, or MBDyn~\citep{MBDyn}. 
-These more advanced approaches target different applications than those envisioned in this study: they are suitable for numerical simulations, but they cannot provide compact symbolic model equations.
+These more advanced approaches target different applications than those envisioned in this study: they are suitable for numerical simulations, but they cannot provide symbolic mid-fidelity models in compact form.
 
 
 
@@ -168,8 +179,9 @@ These more advanced approaches target different applications than those envision
 % \citep{YAMSgithub}
 
 
-In \autoref{sec:method}, we present the formalism used to derive the equations of motion. 
-In \autoref{sec:implementation}, we given an overview of how the equations were implemented into a symbolic calculation framework, to easily manipulate the equations and generate dedicated code. 
+In \autoref{sec:method}, we present the formalism used to derive the equations of motion in a systematic and unified way for flexible and rigid bodies. 
+In \autoref{sec:implementation}, we give an overview of how the symbolic calculation framework was implemented.
+%    to easily manipulate the equations and generate dedicated code. 
 Example of applications relevant to wind energy are given in \autoref{sec:WEapplications}.
 Discussions and conclusions follow.
 
@@ -494,8 +506,8 @@ The symbolic system matrices also allow for the easy formulation of linear param
 \section{Implementation into a symbolic framework}
 \label{sec:implementation}
 % In this section, we introduce two open-source symbolic calculation frameworks that implement the equations given in \autoref{sec:method}:  YAMS, implemented in Python, and CADyn, implemented in Maxima.
-In this section, we discuss a Python open-source symbolic calculation framework that implements the equations given in \autoref{sec:method}. 
-A Maxima implementation from the same authors is also available~\cite{CADynTurb}.
+In this section, we discuss the Python open-source symbolic calculation framework that we implemented according to the equations given in \autoref{sec:method}. 
+A Maxima implementation from the same authors is also available~\citep{CADynTurb}.
 % YAMS, implemented in Python, and CADyn, implemented in Maxima.
 % CADyn, was implemented by the second author
 % , in the language Maxima. The second one, YAMS, was implemented by the second author in Python. 
@@ -648,7 +660,10 @@ The geometric stiffness contribution of the axial load is obtained from \autoref
 % 
 The geometric stiffness, $K_g$, is positive and increases with the square of the rotational speed. 
 This restoring effect is referred to as ``centrifugal stiffening.''
-Since, in this example, the beam is fixed except for a rotational degree of freedom, and no gravitity is assumed, all other stiffening influence can be neglected.
+In this example, the beam rotates with respect to a fixed support, the influence of gravity is omitted, and no force other than the centrifugal force is assumed in the radial direction 
+(the Coriolis force contribution to the radial force is assumed to be negligible for simplicity).
+Therefore, the only geometrical stiffness comes from the centrifugal force.
+For a wind turbine blade mounted on a flexible support and under the influence of gravity, the different geometrical stiffening terms presented in \autoref{sec:GeometricalStiffness} should be used.
 The natural frequency of the blade will increase with the rotational speed as follows:
 \begin{align}
    \omega_0(\Omega)=\sqrt{\frac{(K_{e}+ K_g(\Omega))}{M_e}} 
@@ -755,6 +770,8 @@ The geometric softening of the tower due to the tower-top mass ($K_{gt}$) and it
   K_{gw}&=- g \int_0^{L_T} \left[\frac{d\Phi_1}{dz}(z)\right]^2 \left[\int_z^{L_T} m(z')\,dz' \right]  \, dz
       %\label{eq:}
 \end{align}
+The tower is assumed to be fixed and under no significant vertical external loads and therefore the only geometrical stiffness comes from the gravitational force. For a tower mounted on a moving support (fixed-bottom foundation or floater), additional  geometrical stiffening terms would be present (see \autoref{sec:GeometricalStiffness}).
+% 
 The shape function frequency is obtained as:
 \begin{align}
     \omega_e = \sqrt{(K_e+K_g)/M_e}
@@ -987,10 +1004,16 @@ For instance, implicit integrators with iterative Newton-Raphson-like solvers be
 
 % For complex expressions this is usually much more that modern compilers can do. A similar approach can factor out subexpressions that consist of only parameters. These subexpressions can be precomputed leading to even better run-time performance.
 
+\item The shape function approach introduces a separation of space and time early on in the development of the nonlinear equations, and apply several linear approximation to eliminate high-order terms (see e.g. Table 1 of \cite{Wallrapp:1994}). Because of this, the linearization of the nonlinear equations is straightforward, but the linear solutions will only be valid in the neighborhood of the operating point where they are evaluated. 
+The approximations introduced by the method may imply that non-linearities are not well captured, which is the why the models are labeled as ``mid-fidelity'' throughout this article. 
+Advanced methods to obtain high-fidelity reduced-order (linear or nonlinear) models from nonlinear dynamic systems are beyond the scope of this work, see, e.g.
+\cite{Steindl:2001, Mignolet:2013, Benner:2015}.
+
+
 %     \item The wall time is two order of magnitude faster despite using Python
 \item The generation of linearized models has a wide range of applications, such as linear time domain simulations, controller design and tuning, frequency domain analyses, stability analyses, state observers, or digital twins.
 The symbolic approach is severalfold faster than alternative approaches because it can be evaluated for all operating points at once, whereas other methods (e.g., OpenFAST, HAWCStab2) require multiple linearization calls.
-Also, model order reduction of the linearized models is not necessary, because our models already start out with a reduced number of degrees of freedom and modes for the flexible bodies.
+% Also, model order reduction of the linearized models is not necessary, because our models already start out with a reduced number of degrees of freedom and modes for the flexible bodies.
 
 \item Analytical linearization with respect to parameters is directly obtained using our tool, which can be used for sensitivity analyses, parameter studies, optimizations, integrated design approaches, and controls co-design (e.g., using methods such as linear-matrix-inequality-based designs) \citep{Poschke:2020}.  Nonanalytical approaches require numerous linearizations and evaluations at various operating points \citep{Jonkman:2022lin}.
 
@@ -1419,13 +1442,13 @@ If the shape functions are mode shapes, then the shape functions are orthogonal,
 The modal damping is then given by $D_{e,ii}= 2 \zeta_i M_{e,ii} \omega_{e,i}$, where $\zeta_i$ is the damping ratio associated with mode $i$.
 % The example of mode shapes will be illustrated in \autoref{sec:BeamModeShapeExample}.
 
-If the beam is loaded axially by a force $N(z)$, then this force produces a distributed load in the transverse direction equal to $\v{n} = \frac{\partial}{\partial z}\left[N(z)\frac{\partial \v{u}}{\partial z}\right]$, with components in the $y$ and $z$ directions (see \cite{branlard:2019flex}).
+If the beam is loaded axially by a force $N(z)$ (assumed to be independent of the elastic degrees of freedom), then this force produces a distributed load in the transverse direction equal to $\v{n} = \frac{\partial}{\partial z}\left[N(z)\frac{\partial \v{u}}{\partial z}\right]$, with components in the $y$ and $z$ directions (see \cite{branlard:2019flex}).
 % and $n_y = \frac{\partial}{\partial z}\left[N(z)\frac{\partial u_y}{\partial z}\right]$.
 The generalized force associated with this loading is then $Q_{N,i}=\int_0^L \v{\Phi}_i\cdot \v{n}\, dz$.
-Inserting the expression of $\v{n}$ and $\v{u}$, the generalized force has the form of a stiffness term: $Q_{N,i} =-\sum_j K_{N,ij} q_j$ with
+Inserting the expression of $\v{n}$ and $\v{u}$, the generalized force has the form of a stiffness term: $Q_{N,i} =-\sum_j K_{N,ij} q_{e,j}$ with
 \begin{align}
    K_{N,ij} = -\int_0^L \v{\Phi}_i \cdot \frac{d}{d z} \left[N(z) \frac{d \v{\Phi_j}}{d z}\right] dz  
-       = \int_0^L N(z) \frac{d \v{\Phi}_i }{dz}\cdot \frac{d \v{\Phi}_j }{dz} - \left[N(x) \v{\Phi_i}\cdot \frac{d\v{\Phi_j}}{dz}\right]_0^L
+       = \int_0^L N(z) \frac{d \v{\Phi}_i }{dz}\cdot \frac{d \v{\Phi}_j }{dz} - \left[N(z) \v{\Phi_i}\cdot \frac{d\v{\Phi_j}}{dz}\right]_0^L
    \label{eq:StiffnessAxial}
 \end{align}
 and where integration by parts was used to obtain the second equality.
@@ -1451,6 +1474,7 @@ Additional details may be found in \cite{Wallrapp:1991}.
 The main component of the geometric stiffening term $\v{k}_\sigma$ can be written:
 \begin{align}
   \v{k}_\sigma = \m{K}_g  \v{q}_e
+      \label{eq:kSigma}
 \end{align}
 where $\m{K}_g$ is the geometric stiffness matrix of shape $n_e\times n_e$.
 In general, this matrix is time-dependent, as it is a function of the inertial and external loads acting on the body.
@@ -1478,13 +1502,21 @@ The external loads consist of the gravitational force, distributed forces per un
 where the indices $\alpha$ and $\beta$ run on the $x, y,$ and $z$ coordinates of the body reference frame. 
 The matrices $\m{K}_{g*,\alpha}$ or $\m{K}_{g*,\alpha\beta}$ have the shape $n_e\times n_e$ and are obtained as the geometric stiffness matrices for unit accelerations, loads, or products of rotational velocities in the given direction defined by $\alpha$ and $\beta$ ($x$, $y$, or $z$).
 For instance, $\m{K}_{gt,z}$ is the geometric stiffness matrix corresponding to a unit acceleration in the $z$ direction, 
-$\m{K}_{g\omega,xy}^k$ is the geometric stiffness matrix corresponding to a unit gyration about the $x$ and $y$ directions, and
+$\m{K}_{g\omega,xy}^k$ is the geometric stiffness matrix corresponding to a unit gyration about the $x$ and $y$ directions (centrifugal effect), and
     $\m{K}_{gF,x}^k$ is the geometric stiffness matrix corresponding to a unit force in the $x$ direction applied at the node $k$ along the body. 
-In Kane's method, the motion of rigid bodies and of the reference frames of flexible bodies are considered with respect to an inertial frame of reference. Therefore corriolis forces are accounted for by the accelerations $a_\alpha$.
+% In Kane's method, the motion of rigid bodies and of the reference frames of flexible bodies are considered with respect to an inertial frame of reference. Therefore corriolis forces are accounted for by the accelerations $a_\alpha$.
+The effect of the Coriolis force is not mentioned in the work of Schwertassek and Wallrapp and not explicitly accounted for in \autoref{eq:GeomStiff}. The Coriolis force, $2 m(z) \v{\omega} \times (\sum_j \v{\Phi}_j(z) \dot{q}_{e,j})$, is proportional to $\v{\dot{q}}_e$. Because the instantaneous beam slope is proportional to $\v{q}_e$, the geometrical stiffening term consists of terms of the form $q_{e,j}\dot{q}_{e,k}$.
+In Table 1 of \cite{Wallrapp:1994}, it is stated that nonlinear terms of the form $q_{e,j}\dot{q}_{e,k}$ are neglected. 
+Yet, if the steady state deflection $\v{q}_e$ is significant, then the influence of the Coriolis term on the geometrical stiffening may be significant. The effect can be included as an additional term in  \autoref{eq:kSigma} that is a function of $\v{q}_e$ and $\v{\dot{q}}_e$ (the expressions are provided in \autoref{eq:GeomStiffBeamZ}).
+% 
+% 
+% 
+% 
 % 
 We note that the terms $\m{K}_{g*}$ have different units; for instance, the terms $\m{K}_{gt,*}$ are expressed in \unit{N\cdot s^2 \cdot m^{-2}} .
 
 \subsection{Expressions for a beam directed along $z$}
+\label{eq:GeomStiffBeamZ}
 % We note that for a prcatical numerical implementation distributed loads are usually replaced by point loads.
 The expression for each of these matrices are given in \cite{Schwertassek:book} in the context of the finite-element method.  The general expressions for a shape function approach would be beyond the scope of this article, but we provide the expressions for a beam below.
 % \autoref{sec:ShapeFunctionApproachBeam}.
@@ -1492,6 +1524,17 @@ The expression for each of these matrices are given in \cite{Schwertassek:book} 
 
 We adopt the same notations as \autoref{sec:ShapeFunctionApproachBeam} to describe the flexible beam.
 %In the following, we consider a beam directed along the $z$ direction, and we provide some of the 
+Following the developments that led to \autoref{eq:StiffnessAxial},
+the geometric correction associated with an axial load $N$, is given by the generalized force:
+% associated with the geometric correction coming from an axial load $N$, 
+% for each flexible degree of freedom $i$, is given by:
+\begin{align}
+    k_{\sigma,N,i}=\int_0^L N(z) \v{\Phi}_i\cdot \left[\sum_j\frac{d\v{\Phi}_j}{dz} q_j \right]\, dz
+        \label{eq:kSigmaNBeamZ}
+\end{align}
+When the axial load is not a function of the degrees of freedom, this expression can be expressed as a stiffness matrix, as indicated in \autoref{eq:StiffnessAxial}.
+% 
+% 
 The different unit geometric matrices introduced in \autoref{sec:GeometricalStiffness} can be determined using a form of \autoref{eq:StiffnessAxial}, where the axial load $N$ is replaced by the unit inertial or external load. Since the beam is directed along the $z$ direction, we focus on the terms where the loads act in the $z$ direction, all other terms being zero or negligible.
 The $ij$-component of the matrix $\m{K}_{gt,z}$ is obtained by considering a unit vertical acceleration:
 \begin{align}
@@ -1521,6 +1564,27 @@ Similarly, the $ij$-component of the matrix $\m{K}_{gr,\alpha}$ is:
    \qquad
    \v{N}(z) =  \int_z^L m(z) \v{s}_{P_0} dz
 \end{align}
+% If the Coriolis acceleration
+The Coriolis force, $2 m(z) \v{\omega} \times (\sum_j \v{\Phi}_j(z) \dot{q}_{e,j})$, can also have an axial contribution. Using \autoref{eq:kSigmaNBeamZ}, the generalize force is:
+% % Following the development that led to \autoref{eq:StiffnessAxial}, the generalized force associated with the geometric correction coming from the axial Coriolis force, 
+% for each flexible degree of freedom $i$, is given by:
+% \autoref{eq:GenQBeam}
+%     :
+% \begin{align}
+%    K_{gc,\alpha,ij} = \int_0^L -\v{e}_z\cdot\left(\tilde{\v{e}}_\alpha \v{N}(z) \right)
+%    \, \frac{d\v{\Phi_i}}{dz}\cdot\frac{d\v{\Phi_j}}{dz} dz, 
+%    \qquad
+%    \v{N}(z) =  \int_z^L m(z) \v{s}_{P_0} dz
+% \end{align}
+\begin{align}
+    k_{\sigma,\text{Cor},i}=\int_0^L N(z) \v{\Phi}_i\cdot \left[\sum_j\frac{d\v{\Phi}_j}{dz} q_j \right]\, dz
+        ,\qquad
+        N(z) = 2 \int_z^L m(z) \sum_k \left[   \omega_x\Phi_{k,y}(z)-\omega_y\Phi_{k,x}(z)\right] \dot{q}_k \, dz
+        \label{eq:CoriolisGeom}
+\end{align}
+\autoref{eq:CoriolisGeom} may be manipulated to highlight precomputed shape integrals that are independent of the elastic degrees of freedom and the rotational speed, and therefore speed up the evaluation of this expression at each time step. The vector $\v{k}_{\sigma,\text{Cor}}(\v{q}_e, \v{\dot{q}}_e)$ is added to the right hand side of \autoref{eq:kSigma}.
+
+
 
 % \begin{align}
 %    \m{K}_{0r,\alpha\beta,ij} = \int_0^L -
