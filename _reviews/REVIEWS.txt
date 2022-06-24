@@ -43,10 +43,11 @@ Yet, we agree that this the term might not be insignificant if the steady state 
 
 
 Page 18: Claims regarding the linearization are again imprecise or even misleading.  Analytical linearization is indeed possible and a usual practice in multibody dynamics. 
-What is not trivial is the reduction of the model due to the fact that the dynamics lives on a nonlinear manifold. 
-I do not see how you can provide different levels of details for instance without considering multiscale analysis in time and space… You should elaborate more on this.
-> 
-> separation space and time
+What is not trivial is the reduction of the model due to the fact that the dynamics lives on a nonlinear manifold.  I do not see how you can provide different levels of details for instance without considering multiscale analysis in time and space… You should elaborate more on this.
+> We agree that two slightly different nonlinear systems may lead to completely different responses, and obtaining reduced-order models is not trivial. We have added the following sentences to attempt to address the topic:
+"The shape function approach is an approximate method: it introduces a separation of space and time early on in the development of the nonlinear equations of motion, and applies low order polynomial (usually linear or quadratic) approximations to eliminate high-order terms (see e.g. Table 1 of \cite{Wallrapp:1994}). The approximations introduced by the method may imply that nonlinearities are not well captured, which is why the models are labeled as ``mid-fidelity'' throughout this article.  
+The domain of validity of the nonlinear or linear models presented may therefore be limited in time and space as opposed to fully nonlinear models. Advanced methods to obtain high-fidelity reduced-order models from nonlinear dynamic systems are beyond the scope of this work, see, e.g.  \cite{Steindl:2001, Benner:2015, Touze:2021}."
+
 
 
 

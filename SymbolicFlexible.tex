@@ -1004,11 +1004,13 @@ For instance, implicit integrators with iterative Newton-Raphson-like solvers be
 
 % For complex expressions this is usually much more that modern compilers can do. A similar approach can factor out subexpressions that consist of only parameters. These subexpressions can be precomputed leading to even better run-time performance.
 
-\item The shape function approach introduces a separation of space and time early on in the development of the nonlinear equations, and applies low order polynomial (usually linear or quadratic) approximations to eliminate high-order terms (see e.g. Table 1 of \cite{Wallrapp:1994}). Because of this, the linearization of the nonlinear equations is straightforward, but the linear solutions will only be valid in the neighborhood of the operating point where they are evaluated. 
-The approximations introduced by the method may imply that non-linearities are not well captured, which is the why the models are labeled as ``mid-fidelity'' throughout this article. 
-Advanced methods to obtain high-fidelity reduced-order (linear or nonlinear) models from nonlinear dynamic systems are beyond the scope of this work, see, e.g.
-\cite{Steindl:2001, Mignolet:2013, Benner:2015}.
+\item The shape function approach is an approximate method: it introduces a separation of space and time early on in the development of the nonlinear equations of motion, and applies low order polynomial (usually linear or quadratic) approximations to eliminate high-order terms (see e.g. Table 1 of \cite{Wallrapp:1994}). 
+The approximations introduced by the method may imply that nonlinearities are not well captured, which is why the models are labeled as ``mid-fidelity'' throughout this article.  
+The domain of validity of the nonlinear or linear models presented may therefore be limited in time and space as opposed to fully nonlinear methods.
+Advanced methods to obtain high-fidelity reduced-order models from nonlinear dynamic systems are beyond the scope of this work, see, e.g.
+\cite{Steindl:2001, Benner:2015, Touze:2021}.
 
+% The linearization of the equations is straightforward, but it should be recalled that the linear solutions will only be valid in the neighborhood of the operating point where they are evaluated. 
 
 %     \item The wall time is two order of magnitude faster despite using Python
 \item The generation of linearized models has a wide range of applications, such as linear time domain simulations, controller design and tuning, frequency domain analyses, stability analyses, state observers, or digital twins.
@@ -1582,7 +1584,7 @@ The Coriolis force, $2 m(z) \v{\omega} \times (\sum_j \v{\Phi}_j(z) \dot{q}_{e,j
         N(z) = 2 \int_z^L m(z) \sum_k \left[   \omega_x\Phi_{k,y}(z)-\omega_y\Phi_{k,x}(z)\right] \dot{q}_k \, dz
         \label{eq:CoriolisGeom}
 \end{align}
-\autoref{eq:CoriolisGeom} may be into a three-tensor of the shape integrals that is independent of the elastic degrees of freedom and the rotational speed to speed up the evaluation of this expression at each time step. The vector $\v{k}_{\sigma,\text{Cor}}(\v{q}_e, \v{\dot{q}}_e)$ is added to the right hand side of \autoref{eq:kSigma}.
+\autoref{eq:CoriolisGeom} may be rearranged by introducing a three-dimensional tensor made of shape integrals that are independent of the elastic degrees of freedom and the rotational speed, and therefore speed up the evaluation of this expression at each time step. The vector $\v{k}_{\sigma,\text{Cor}}(\v{q}_e, \v{\dot{q}}_e)$ is added to the right hand side of \autoref{eq:kSigma}.
 
 
 
